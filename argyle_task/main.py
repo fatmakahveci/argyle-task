@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup
-import asyncio, httpx, logging, requests
-import json
+import asyncio, httpx, json, logging, ssl, time
 
 BASE_URL = "https://www.upwork.com"
 LOGIN_URL = BASE_URL+"/ab/account-security/login"
@@ -15,45 +14,87 @@ CREDENTIALS = {
     "password": "argyleSifresi1.",
     }
 
+CLOUDFLARE_RETRY_COUNT = 10
 CLOUDFLARE_COOKIE_NAMES = ['__cf_bm']
 
 COMMON_HEADERS = { 
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36',
-            'content-type': 'application/json',
-        }
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/110.0',
+    'content-type': 'application/json',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+    'Connection': 'keep-alive',
+    'Set-Fetch-Dest': 'document',
+    'Set-Fetch-Mode': 'navigate',
+    'Set-Fetch-Site': 'none',
+    'Upgrade-Insecure-Requests': '1'
+    }
 
-async def load_cloudflare_stuff(client):
-    response = await client.get(headers=COMMON_HEADERS, url=LOGIN_URL)
-    if response.status_code == 403:
-            logger.warning("Received 403")
-        
+LOCAL_SSL_FILE_PATH = "/etc/ssl/cert.pem"
+
+async def load_cloudflare_stuff(client, retryCount):
+    """This function is needed to collect the cloudflare-needed cookies
+    that will be used for bypassing cloudflare's bot-prevention mechanisms.
+
+    Args:
+        client (_type_): _description_
+        retryCount (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
     cookies = {}
-    headers = {}
-    for cookie in response.headers['set-cookie'].split(';'):
-        cookieTokens = cookie.strip(' ').split("=", 1)
-        if len(cookieTokens) == 2:
-            if cookieTokens[0] in CLOUDFLARE_COOKIE_NAMES:
-                cookies[cookieTokens[0]] = cookieTokens[1]
+    headers = COMMON_HEADERS | {}
+    
+    for _ in range(retryCount):
+        logger.debug(f"request headers: {headers}")
+        logger.debug(f"request cookies: {cookies}")
+        response = await client.get(headers=headers, cookies=cookies, url=LOGIN_URL)
+        if response.status_code == 403:
+            logger.warning("Received 403")
+            logger.debug(response.headers)
 
-    if response.headers["cf-ray"]:
+        if 'set-cookie' in response.headers:
+            for cookie in response.headers['set-cookie'].split(';'):
+                cookieTokens = cookie.strip(' ').split("=", 1)
+                if len(cookieTokens) == 2:
+                    if cookieTokens[0] in CLOUDFLARE_COOKIE_NAMES:
+                        cookies[cookieTokens[0]] = cookieTokens[1]
+
+        if 'cf-ray' in response.headers:
             headers["cf-ray"] = response.headers["cf-ray"]
+        
+        if response.status_code == 200:
+            break
 
-    print(f"cf cookies: {cookies}")
+        time.sleep(1)
     return (cookies, headers)
 
 
-async def main():
-    async with httpx.AsyncClient() as client:
-        
-        cf_cookies, cf_headers = await load_cloudflare_stuff(client)
+def createClient(caFilePath):
+    """createClient
+
+    Args:
+        caFilePath (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    context = ssl.create_default_context() # https://www.python-httpx.org/advanced/#ssl-certificates
+    context.load_verify_locations(cafile=caFilePath)
+    return httpx.AsyncClient(verify=context)
+
+async def main(): 
+
+    async with createClient(LOCAL_SSL_FILE_PATH) as client:
+
+        cf_cookies, cf_headers = await load_cloudflare_stuff(client, retryCount=CLOUDFLARE_RETRY_COUNT)
 
         cookies = {} | cf_cookies
         headers = COMMON_HEADERS.copy() | cf_headers
-        
+
         login_page_response = await client.get(url=LOGIN_URL, headers=headers, cookies=cookies)
 
         for cookie in login_page_response.headers['set-cookie'].split(';'):
-            logging.info(cookie)
+            logging.debug(cookie)
             if "visitor_id" in cookie:
                 cookies["visitor_id"] = cookie.split("=")[1]
             if "XSRF-TOKEN" in cookie:
@@ -82,14 +123,10 @@ async def main():
                                         }
                                     }
         )
-
-        # print(login_post_response.text)
-        # redirect_url = BASE_URL+json.loads(login_post_response.text)['redirectUrl']
-        # login_page_response = await client.get(url=redirect_url, headers=headers, follow_redirects=True)
-        # print(login_page_response.text)
-        temp_url = "https://www.upwork.com/freelancers/~016ce3550879fb5788"
-        search_url_response = await client.get(url=temp_url, headers=headers, follow_redirects=True)
-        print(search_url_response.text)
+        redirect_url = BASE_URL+json.loads(login_post_response.text)['redirectUrl']
+        login_page_response = await client.get(url=redirect_url, headers=headers, follow_redirects=True)
+        with open('/Users/fatmakhv/Desktop/out.html', 'w') as file:
+            file.write(login_page_response.text)
 
 
 if __name__ == "__main__":

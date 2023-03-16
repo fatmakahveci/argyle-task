@@ -149,3 +149,52 @@ poetry run pytest
 ## Additional libraries
 
 ### logging module
+
+---
+
+## ERROR CODES
+
+200 - OK Everything worked as expected.
+201 - Created Resource has been created.
+204 - No Content Operation has been accepted and no content in response has been sent.
+400 - Bad Request The request was unacceptable, often due to missing required parameter.
+401 - Unauthorized No valid API key provided.
+402 - Request Failed The parameters were valid but the request failed.
+403 - Forbidden The API key doesn't have permissions to perform the request.
+404 - Not Found The requested resource doesn't exist.
+409 - Conflict Arguments in the request are in conflict with the server state.
+429 - Too Many Requests Too many requests hit the API too quickly. We recommend an exponential backoff of your requests.
+500, 502, 503, 504 - Server Errors Something went wrong on Argyle's end. (These are rare.)
+
+---
+
+## Example profile object
+
+```json
+{
+    "id": "47b216e2-d334-4235-bc1e-185d15ab18d0",
+    "account": "010db8b4-a724-47fc-a17e-733b656312a2",
+    "employer": "walmart",
+    "created_at": "2019-11-29T09:00:16.384575Z",
+    "updated_at": "2019-11-29T09:00:16.384624Z",
+    "first_name": "John",
+    "last_name": "Smith",
+    "full_name": "John Smith",
+    "email": "john.smith@email.com",
+    "phone_number": null,
+    "birth_date": "1990-04-28",
+    "picture_url": "https://profile.picture.com/picture.jpeg",
+    "address": {
+        "line1": null,
+        "line2": null,
+        "city": null,
+        "state": null,
+        "postal_code": null,
+        "country": null
+    },
+    "ssn": "***-**-**15",
+    "marital_status": null,
+    "gender": "male",
+    "metadata": {}
+}
+```
