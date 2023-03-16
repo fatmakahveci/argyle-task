@@ -4,11 +4,11 @@ import json
 
 BASE_URL = "https://www.upwork.com"
 LOGIN_URL = BASE_URL+"/ab/account-security/login"
-CREDENTIALS = {
-    "username": "bobbybackupy",
-    "password": "Argyleawesome123!",
-    "secret-key": "TheDude!@"
-    }
+# CREDENTIALS = {
+#     "username": "bobbybackupy",
+#     "password": "Argyleawesome123!",
+#     "secret-key": "TheDude!@"
+#     }
 
 CREDENTIALS = {
     "username": "fatmaba@gmail.com",
@@ -84,8 +84,12 @@ async def main():
         )
 
         # print(login_post_response.text)
-        redirect_url = BASE_URL+json.loads(login_post_response.text)['redirectUrl']
-        login_page_response = await client.get(url=redirect_url, headers=headers, follow_redirects=True)
+        # redirect_url = BASE_URL+json.loads(login_post_response.text)['redirectUrl']
+        # login_page_response = await client.get(url=redirect_url, headers=headers, follow_redirects=True)
+        # print(login_page_response.text)
+        temp_url = "https://www.upwork.com/freelancers/~016ce3550879fb5788"
+        search_url_response = await client.get(url=temp_url, headers=headers, follow_redirects=True)
+        print(search_url_response.text)
 
 
 if __name__ == "__main__":
