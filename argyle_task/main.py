@@ -3,6 +3,7 @@ import asyncio, httpx, json, logging, ssl, time
 
 BASE_URL = "https://www.upwork.com"
 LOGIN_URL = BASE_URL+"/ab/account-security/login"
+PROFILE_URL = BASE_URL+"/freelancers/"
 # CREDENTIALS = {
 #     "username": "bobbybackupy",
 #     "password": "Argyleawesome123!",
@@ -45,12 +46,12 @@ async def load_cloudflare_stuff(client, retryCount):
     headers = COMMON_HEADERS | {}
     
     for _ in range(retryCount):
-        logger.debug(f"request headers: {headers}")
-        logger.debug(f"request cookies: {cookies}")
+        # logger.debug(f"request headers: {headers}")
+        # logger.debug(f"request cookies: {cookies}")
         response = await client.get(headers=headers, cookies=cookies, url=LOGIN_URL)
         if response.status_code == 403:
             logger.warning("Received 403")
-            logger.debug(response.headers)
+            # logger.debug(response.headers)
 
         if 'set-cookie' in response.headers:
             for cookie in response.headers['set-cookie'].split(';'):
@@ -94,7 +95,7 @@ async def main():
         login_page_response = await client.get(url=LOGIN_URL, headers=headers, cookies=cookies)
 
         for cookie in login_page_response.headers['set-cookie'].split(';'):
-            logging.debug(cookie)
+            # logging.debug(cookie)
             if "visitor_id" in cookie:
                 cookies["visitor_id"] = cookie.split("=")[1]
             if "XSRF-TOKEN" in cookie:
@@ -112,7 +113,7 @@ async def main():
                                 url=LOGIN_URL,
                                 headers=headers,
                                 cookies=cookies,
-                                follow_redirects=False,
+                                follow_redirects=True,
                                 timeout=50,
                                 json={
                                     "login": {
@@ -123,10 +124,11 @@ async def main():
                                         }
                                     }
         )
-        redirect_url = BASE_URL+json.loads(login_post_response.text)['redirectUrl']
-        login_page_response = await client.get(url=redirect_url, headers=headers, follow_redirects=True)
+        login_page_response = await client.get(url=PROFILE_URL+"?viewMode=1", headers=headers, follow_redirects=True)
+        profile_url = login_page_response.url
+        response = await client.get(url=profile_url, headers=headers)
         with open('/Users/fatmakhv/Desktop/out.html', 'w') as file:
-            file.write(login_page_response.text)
+            file.write(response.text)
 
 
 if __name__ == "__main__":
