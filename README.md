@@ -148,23 +148,29 @@ poetry run pytest
 
 ## Additional libraries
 
-### logging module
+### `logging`
+
+- [logging](https://docs.python.org/3/library/logging.html?highlight=logging#module-logging) defines functions and classes which implement a flexible event logging system for applications and libraries.
+
+### `sqlite3`
+
+- [SQLite](https://docs.python.org/3.8/library/sqlite3.html) is a C library that provides a lightweight disk-based database that doesn't require a separate server process and allows accessing the database using a nonstandard variant of the SQL query language.
 
 ---
 
 ## ERROR CODES
 
-200 - OK Everything worked as expected.
-201 - Created Resource has been created.
-204 - No Content Operation has been accepted and no content in response has been sent.
-400 - Bad Request The request was unacceptable, often due to missing required parameter.
-401 - Unauthorized No valid API key provided.
-402 - Request Failed The parameters were valid but the request failed.
-403 - Forbidden The API key doesn't have permissions to perform the request.
-404 - Not Found The requested resource doesn't exist.
-409 - Conflict Arguments in the request are in conflict with the server state.
-429 - Too Many Requests Too many requests hit the API too quickly. We recommend an exponential backoff of your requests.
-500, 502, 503, 504 - Server Errors Something went wrong on Argyle's end. (These are rare.)
+- 200 - OK Everything worked as expected.
+- 201 - Created Resource has been created.
+- 204 - No Content Operation has been accepted and no content in response has been sent.
+- 400 - Bad Request The request was unacceptable, often due to missing required parameter.
+- 401 - Unauthorized No valid API key provided.
+- 402 - Request Failed The parameters were valid but the request failed.
+- 403 - Forbidden The API key doesn't have permissions to perform the request.
+- 404 - Not Found The requested resource doesn't exist.
+- 409 - Conflict Arguments in the request are in conflict with the server state.
+- 429 - Too Many Requests Too many requests hit the API too quickly. We recommend an exponential backoff of your requests.
+- 500, 502, 503, 504 - Server Errors Something went wrong on Argyle's end. (These are rare.)
 
 ---
 
