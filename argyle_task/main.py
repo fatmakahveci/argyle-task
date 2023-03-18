@@ -1,5 +1,4 @@
-from bs4 import BeautifulSoup
-from datetime import datetime
+
 import asyncio
 import httpx
 import json
@@ -7,7 +6,8 @@ import logging
 import ssl
 import time
 import database
-from typing import Dict
+from typing import Dict, Optional
+from user import User
 
 BASE_URL = "https://www.upwork.com"
 LOGIN_URL = BASE_URL+"/ab/account-security/login"
@@ -207,68 +207,27 @@ async def sign_in(client, headers, cookies) -> bool:
     return True
 
 
-async def get_profile_text(client, headers, cookies):
+async def get_profile_text(client, headers, cookies) -> Optional[User]:
     response = await client.get(url=PROFILE_URL, headers=headers, follow_redirects=True)
 
     if response.status_code != httpx.codes.OK:
-        raise Exception(
-            f"Received {response.status_code}: User ID cannot be taken.")
+        logger.error(response_error_str(
+            "Could not load profile page", response))
+        return None
 
     user_id = str(response.url).split('/')[-1]  # user ID
     profile_url = f"https://www.upwork.com/freelancers/api/v1/freelancer/profile/{user_id}/details"
     response = await client.get(url=profile_url, headers=headers, cookies=cookies)
 
     if response.status_code != httpx.codes.OK:
-        raise Exception(
-            f"Received {response.status_code}: User profile cannot be taken.")
+        logger.error(response_error_str(
+            "Could not fetch user profile details", response))
+        return None
 
-    response = json.loads(response.text)
-    user = database.User(username=CREDENTIALS['username'])
-    # profile
-    profile = response['profile']
-    # profile.identity
-    user.id = profile['identity']['uid']
-    # profile.profile
-    user.name = profile['profile']['name']
-    user.title = profile['profile']['title']
-    user.description = profile['profile']['description']
-    user.country = profile['profile']['location']['country']
-    user.city = profile['profile']['location']['city']
-    user.time_zone = profile['profile']['location']['countryTimezone'].split(' ')[
-        0]
-    for s in profile['profile']['skills']:
-        user.skills.append(s['name'])
-    # profile.stats
-    user.hourly_rate = str(profile['stats']['hourlyRate']['amount']) + \
-        profile['stats']['hourlyRate']['currencyCode']
-    # profile.languages
-    for l in profile['languages']:
-        user.languages.append(l['language']['name'])
-    # profile.certificates
-    user.certificates = []
-    for c in profile['certificates']:
-        user.certificates.append(c['certificate']['name'])
-    # profile.employmentHistory
-    user.employment_history = []
-    for eh in profile['employmentHistory']:
-        job_title = f"{eh['jobTitle']} at {eh['companyName']}, {eh['city']}, {eh['country']}, s:{eh['startDate']}, e:{eh['endDate']}"
-        user.employment_history.append(job_title)
-    # profile.education
-    for e in profile['education']:
-        education = f"{e['degree']} at {e['areaOfStudy']} Department in {e['institutionName']} s:{e['dateStarted']}, e:{e['dateStarted']}"
-        user.education.append(education)
-    # profile.jobCategoriesV2
-    for jc in profile['jobCategoriesV2']:
-        user.job_categories.append(jc['groupName'])
-    # person
-    user.creation_date = datetime.strptime(
-        response['person']['creationDate'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
-    user.updated_on = datetime.strptime(
-        response['person']['updatedOn'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
-    return user
+    return User(username=CREDENTIALS['username'], profile_response_json=json.loads(response.text))
 
 
-def write_profile_to_database(user: str):
+def write_profile_to_database(user: User):
     """_summary_
 
     Args:
@@ -279,13 +238,12 @@ def write_profile_to_database(user: str):
 
 
 async def main():
-    # user = get_profile_info()
-
     async with create_client(LOCAL_SSL_FILE_PATH) as client:
         headers, cookies = await get_headers_and_cookies(client)
         if await sign_in(client, headers, cookies):
             user = await get_profile_text(client, headers, cookies)
-            write_profile_to_database(user)
+            if user is not None:
+                write_profile_to_database(user)
         else:
             raise Exception('User profile cannot be created.')
 
