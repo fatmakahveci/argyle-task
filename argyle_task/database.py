@@ -1,17 +1,36 @@
-from contextlib import closing
-import sqlite3
-from main import DEFAULT_DB_PATH
+from datetime import datetime
+import json
+import logging, sqlite3
+from main import ROOT_DIR
 
+DATABASE_FILE = ROOT_DIR+'db.sqlite'
 
-DATABASE_FILE = DEFAULT_DB_PATH+'db.sqlite'
+logging.basicConfig(
+        level = logging.DEBUG,
+        format = '%(asctime)s:%(levelname)s:%(name)s:%(message)s'
+        )
+logger = logging.getLogger("database_logger")
+
+class DatetimeEncoder(json.JSONEncoder):
+    def default(self, obj):
+        try:
+            return super().default(obj)
+        except TypeError:
+            return str(obj)
 
 def create_table():
     conn = sqlite3.connect(DATABASE_FILE)
     cur = conn.cursor() # calls execute() to perform SQL commands
-
+    logger.info("Connected to SQLite")
+    # TODO index on username
     cur.execute('''CREATE TABLE IF NOT EXISTS User (
+                        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
                         username varchar(255) NOT NULL,
-                        PRIMARY KEY (username)
+                        userId varchar(255) NOT NULL,
+                        profile_creation_time INT,
+                        profile_update_time INT,
+                        profile TEXT
                         );
                  ''')
     conn.commit() # saves the changes
@@ -22,6 +41,8 @@ def get_all():
     cur = conn.cursor() # calls execute() to perform SQL commands
 
     cur.execute("SELECT * FROM User")
+    logger.info(f"Users are read from the database.")
+
     users = cur.fetchall()
 
     conn.commit() # saves the changes
@@ -31,26 +52,18 @@ def get_all():
 def insert_user(user):
     conn = sqlite3.connect(DATABASE_FILE)
     cur = conn.cursor() # calls execute() to perform SQL commands
-
-    cur.execute("INSERT INTO user VALUES (?)", (user.username))
-
+    user_profile = json.dumps(user.__dict__, cls=DatetimeEncoder)
+    cur.execute("INSERT INTO User(username, userId, profile_creation_time, profile_update_time, profile) VALUES (?, ?, ?, ?, ?)", (user.username, user.id, user.creation_date, user.updated_on, user_profile))
+    logger.info(f"{user.username} is added to the database.")
     conn.commit() # saves the changes
     conn.close()
 
-def delete_user(user):
+def delete_user(username: str):
     conn = sqlite3.connect(DATABASE_FILE)
     cur = conn.cursor() # calls execute() to perform SQL commands
 
-    cur.execute("DELETE FROM user WHERE rowid=(?)", id)
-
+    cur.execute("DELETE FROM user WHERE username=(?)", username)
+    logger.info(f"{username} is deleted from the database.")
+    
     conn.commit() # saves the changes
     conn.close()
-
-
-# user id auto increment row id primary key
-# time stamp when is added
-# email index kur
-# diger bilgiler
-# script calisacak credential okuyup kayit atacak
-# database ayri fileda
-# main den database e yazma fonksiyonu cagirilacak
