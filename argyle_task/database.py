@@ -1,7 +1,9 @@
 from datetime import datetime
 import json
 import logging, sqlite3
-from main import ROOT_DIR
+import os
+
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/'
 
 DATABASE_FILE = ROOT_DIR+'db.sqlite'
 
@@ -10,6 +12,50 @@ logging.basicConfig(
         format = '%(asctime)s:%(levelname)s:%(name)s:%(message)s'
         )
 logger = logging.getLogger("database_logger")
+
+
+class User:
+    def __init__(self, username):
+        self.id = ""
+        self.name = ""
+        self.username = username # (unique) email or username
+        self.title = ""
+        self.description = ""
+        self.country = ""
+        self.city = ""
+        self.time_zone = ""
+        self.skills = []
+        self.hourly_rate = ""
+        self.languages = []
+        self.certificates = []
+        self.employment_history = []
+        self.education = []
+        self.job_categories = []
+        self.creation_date = ""
+        self.updated_on = ""
+        self.profile = ""
+
+    def __str__(self):
+        user = f"""
+        id: {self.id}
+        name: {self.name}
+        title: {self.title}
+        description: {self.description}
+        country: {self.country}
+        city: {self.city}
+        time_zone: {self.time_zone}
+        skills: {self.skills}
+        hourly_rate: {self.hourly_rate}
+        languages: {self.languages}
+        certificates: {self.certificates}
+        employment history: {self.employment_history}
+        education: {self.education}
+        job categories: {self.job_categories}
+        creation date: {self.creation_date}
+        updated on: {self.updated_on}
+        """
+        return user
+
 
 class DatetimeEncoder(json.JSONEncoder):
     def default(self, obj):
