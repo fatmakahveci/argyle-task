@@ -58,5 +58,10 @@ class User:
         self.updated_on = datetime.strptime(
             profile_response_json['person']['updatedOn'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
 
-    def to_json(self):
+    def to_json(self) -> str:
+        """_summary_
+
+        Returns:
+            str: _description_
+        """
         return json.dumps(self.__dict__, cls=DatetimeEncoder)

@@ -25,7 +25,9 @@ class DatetimeEncoder(json.JSONEncoder):
             return str(obj)
 
 
-def create_table():
+def create_table() -> None:
+    """_summary_
+    """
     conn = sqlite3.connect(DATABASE_FILE)
     cur = conn.cursor()  # calls execute() to perform SQL commands
     logger.info("Connected to SQLite")
@@ -44,7 +46,12 @@ def create_table():
     conn.close()
 
 
-def get_all():
+def get_all() -> List[user.User]:
+    """_summary_
+
+    Returns:
+        List[user.User]: _description_
+    """
     conn = sqlite3.connect(DATABASE_FILE)
     cur = conn.cursor()  # calls execute() to perform SQL commands
 
@@ -58,7 +65,12 @@ def get_all():
     return users
 
 
-def insert_users(users: List[user.User]):
+def insert_users(users: List[user.User]) -> None:
+    """_summary_
+
+    Args:
+        users (List[user.User]): _description_
+    """
     conn = sqlite3.connect(DATABASE_FILE)
     sql_params = [(user.username, user.id, user.creation_date,
                    user.updated_on, user.to_json()) for user in users]
@@ -70,7 +82,12 @@ def insert_users(users: List[user.User]):
     conn.close()
 
 
-def delete_user(username: str):
+def delete_user(username: str) -> None:
+    """_summary_
+
+    Args:
+        username (str): _description_
+    """
     conn = sqlite3.connect(DATABASE_FILE)
     cur = conn.cursor()  # calls execute() to perform SQL commands
 

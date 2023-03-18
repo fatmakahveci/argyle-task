@@ -43,16 +43,15 @@ class UserCredentials:
         self.answer = answer
 
 
-async def get_cloudflare_headers_and_cookies(client: httpx.AsyncClient, retryCount: int):
-    """This function is needed to collect the cloudflare-needed cookies
-    that will be used for bypassing cloudflare's bot-prevention mechanisms.
+async def get_cloudflare_headers_and_cookies(client: httpx.AsyncClient, retryCount: int) -> List[Dict, Dict]:
+    """_summary_
 
     Args:
-        client (_type_): _description_
-        retryCount (_type_): _description_
+        client (httpx.AsyncClient): _description_
+        retryCount (int): _description_
 
     Returns:
-        _type_: _description_
+        List[Dict, Dict]: _description_
     """
     headers = COMMON_HEADERS | {}
     cookies = {}
@@ -82,15 +81,15 @@ async def get_cloudflare_headers_and_cookies(client: httpx.AsyncClient, retryCou
         logger.warning(
             f"Received {response.status_code} while getting cloudflare cookies")
         time.sleep(1)
-    
+
     return [headers, cookies]
 
 
-def create_client(certificate_path: str):
+def create_client(certificate_path: str) -> httpx.AsyncClient:
     """_summary_
 
     Args:
-        caFilePath (_type_): _description_
+        certificate_path (str): _description_
 
     Returns:
         httpx.AsyncClient: _description_
@@ -101,11 +100,14 @@ def create_client(certificate_path: str):
     return httpx.AsyncClient(verify=context)
 
 
-async def get_headers_and_cookies(client: httpx.AsyncClient):
+async def get_headers_and_cookies(client: httpx.AsyncClient) -> List[Dict, Dict]:
     """_summary_
 
+    Args:
+        client (httpx.AsyncClient): _description_
+
     Returns:
-        _type_: _description_
+        List[Dict, Dict]: _description_
     """
     cf_headers, cf_cookies = await get_cloudflare_headers_and_cookies(client, retryCount=CLOUDFLARE_RETRY_COUNT)
 
@@ -118,7 +120,6 @@ async def get_headers_and_cookies(client: httpx.AsyncClient):
         logger.info(
             f"Received {response.status_code}: Headers and cookies are taken.")
         for cookie in response.headers['set-cookie'].split(';'):
-            # logging.debug(cookie)
             if "visitor_id" in cookie:
                 cookies["visitor_id"] = cookie.split("=")[1]
             if "XSRF-TOKEN" in cookie:
@@ -138,6 +139,15 @@ async def get_headers_and_cookies(client: httpx.AsyncClient):
 
 
 def create_login_json(username: str, password: str) -> Dict[str, str]:
+    """_summary_
+
+    Args:
+        username (str): _description_
+        password (str): _description_
+
+    Returns:
+        Dict[str, str]: _description_
+    """
     return {
         "login": {
             "username": username,
@@ -148,6 +158,17 @@ def create_login_json(username: str, password: str) -> Dict[str, str]:
 
 
 def create_challenge_json(username: str, answer: str, authToken: str, challengeData: str) -> Dict[str, str]:
+    """_summary_
+
+    Args:
+        username (str): _description_
+        answer (str): _description_
+        authToken (str): _description_
+        challengeData (str): _description_
+
+    Returns:
+        Dict[str, str]: _description_
+    """
     return {
         'login': {
             "deviceAuthorization": {
@@ -162,7 +183,9 @@ def create_challenge_json(username: str, answer: str, authToken: str, challengeD
     }
 
 
-def response_error_str(message, response):
+def response_error_str(message: str, response: Dict) -> str:
+    """
+    """
     return f"""
             {message}.
             response code: {response.status_code}
@@ -171,10 +194,18 @@ def response_error_str(message, response):
             """
 
 
-async def sign_in(client, headers, cookies, credentials: UserCredentials) -> bool:
-    """
-    """
+async def sign_in(client: httpx.AsyncClient, headers: Dict, cookies: Dict, credentials: UserCredentials) -> bool:
+    """_summary_
 
+    Args:
+        client (httpx.AsyncClient): _description_
+        headers (Dict): _description_
+        cookies (Dict): _description_
+        credentials (UserCredentials): _description_
+
+    Returns:
+        bool: _description_
+    """
     login_response = await client.post(
         url=LOGIN_URL,
         headers=headers,
@@ -219,7 +250,18 @@ async def sign_in(client, headers, cookies, credentials: UserCredentials) -> boo
     return True
 
 
-async def get_profile_text(client, headers, cookies, credentials: UserCredentials) -> Optional[User]:
+async def get_profile_text(client: httpx.AsyncClient, headers: Dict, cookies: Dict, credentials: UserCredentials) -> Optional[User]:
+    """_summary_
+
+    Args:
+        client (httpx.AsyncClient): _description_
+        headers (Dict): _description_
+        cookies (Dict): _description_
+        credentials (UserCredentials): _description_
+
+    Returns:
+        Optional[User]: _description_
+    """
     response = await client.get(url=PROFILE_URL, headers=headers, follow_redirects=True)
 
     if response.status_code != httpx.codes.OK:
@@ -240,6 +282,15 @@ async def get_profile_text(client, headers, cookies, credentials: UserCredential
 
 
 async def crawl_user_data(client: httpx.AsyncClient, credentials: UserCredentials) -> Optional[User]:
+    """_summary_
+
+    Args:
+        client (httpx.AsyncClient): _description_
+        credentials (UserCredentials): _description_
+
+    Returns:
+        Optional[User]: _description_
+    """
     logger.info(f"Crawling data for {credentials.username}")
     headers, cookies = await get_headers_and_cookies(client)
     is_signed_in = await sign_in(client, headers, cookies, credentials)
@@ -257,7 +308,16 @@ async def crawl_user_data(client: httpx.AsyncClient, credentials: UserCredential
     return user
 
 
-async def crawl_users(certificate_path, credentials: List[UserCredentials]):
+async def crawl_users(certificate_path: str, credentials: List[UserCredentials]) -> List[User]:
+    """_summary_
+
+    Args:
+        certificate_path (str): _description_
+        credentials (List[UserCredentials]): _description_
+
+    Returns:
+        List[User]: _description_
+    """
     users = []
     async with create_client(certificate_path) as client:
         tasks = []
@@ -270,7 +330,13 @@ async def crawl_users(certificate_path, credentials: List[UserCredentials]):
     return users
 
 
-def crawl_and_save_users(certificate_path, credentials: List[UserCredentials]):
+def crawl_and_save_users(certificate_path: str, credentials: List[UserCredentials]) -> None:
+    """_summary_
+
+    Args:
+        certificate_path (str): _description_
+        credentials (List[UserCredentials]): _description_
+    """
     database.create_table()
     users = asyncio.run(crawl_users(certificate_path=certificate_path,
                                     credentials=credentials))
