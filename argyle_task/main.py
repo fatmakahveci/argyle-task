@@ -59,26 +59,30 @@ async def get_cloudflare_headers_and_cookies(client: httpx.AsyncClient, retryCou
 
     for _ in range(retryCount):
         response = await client.get(headers=headers, cookies=cookies, url=LOGIN_URL)
-        if response.status_code != httpx.codes.OK:
-            logger.info(
-                f"Received {response.status_code}: Headers and cookies cannot be taken.")
-
         if 'set-cookie' in response.headers:
             for cookie in response.headers['set-cookie'].split(';'):
                 cookieTokens = cookie.strip(' ').split("=", 1)
                 if len(cookieTokens) == 2:
                     if cookieTokens[0] in CLOUDFLARE_COOKIE_NAMES:
                         cookies[cookieTokens[0]] = cookieTokens[1]
+                else:
+                    logger.error(
+                        f"Could not parse set-cookie header: {cookie}")
 
         if 'cf-ray' in response.headers:
             headers["cf-ray"] = response.headers["cf-ray"]
+        else:
+            logger.error(f"Could not find cf-ray in headers")
 
         if response.status_code == httpx.codes.OK:
             logger.info(
                 f"Received {response.status_code}: Headers and cookies are taken.")
             break
 
+        logger.warning(
+            f"Received {response.status_code} while getting cloudflare cookies")
         time.sleep(1)
+    
     return [headers, cookies]
 
 
