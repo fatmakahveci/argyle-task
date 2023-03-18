@@ -6,18 +6,21 @@ import logging
 import ssl
 import time
 import database
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 from user import User
+
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s:%(levelname)s:%(name)s:%(message)s'
+)
+logger = logging.getLogger("task_logger")
+
 
 BASE_URL = "https://www.upwork.com"
 LOGIN_URL = BASE_URL+"/ab/account-security/login"
 PROFILE_URL = BASE_URL+"/freelancers/"
 
-CREDENTIALS = {
-    "username": "fatmakahvecim@gmail.com",
-    "password": "argyleSifresi1.",
-    "answer": "pufi",
-}
 
 CLOUDFLARE_RETRY_COUNT = 10
 CLOUDFLARE_COOKIE_NAMES = ['__cf_bm']
@@ -32,7 +35,12 @@ COMMON_HEADERS = {
     'Upgrade-Insecure-Requests': '1',
 }
 
-LOCAL_SSL_FILE_PATH = "/etc/ssl/cert.pem"
+
+class UserCredentials:
+    def __init__(self, username, password, answer):
+        self.username = username
+        self.password = password
+        self.answer = answer
 
 
 async def get_cloudflare_headers_and_cookies(client: httpx.AsyncClient, retryCount: int):
@@ -74,7 +82,7 @@ async def get_cloudflare_headers_and_cookies(client: httpx.AsyncClient, retryCou
     return [headers, cookies]
 
 
-def create_client(caFilePath: str):
+def create_client(certificate_path: str):
     """_summary_
 
     Args:
@@ -85,7 +93,7 @@ def create_client(caFilePath: str):
     """
     context = ssl.create_default_context(
     )  # https://www.python-httpx.org/advanced/#ssl-certificates
-    context.load_verify_locations(cafile=caFilePath)
+    context.load_verify_locations(cafile=certificate_path)
     return httpx.AsyncClient(verify=context)
 
 
@@ -159,7 +167,7 @@ def response_error_str(message, response):
             """
 
 
-async def sign_in(client, headers, cookies) -> bool:
+async def sign_in(client, headers, cookies, credentials: UserCredentials) -> bool:
     """
     """
 
@@ -170,7 +178,7 @@ async def sign_in(client, headers, cookies) -> bool:
         follow_redirects=True,
         timeout=50,
         json=create_login_json(
-            CREDENTIALS['username'], CREDENTIALS['password'])
+            credentials.username, credentials.password)
     )
 
     if login_response.status_code != httpx.codes.OK:
@@ -196,7 +204,7 @@ async def sign_in(client, headers, cookies) -> bool:
         follow_redirects=True,
         timeout=50,
         json=create_challenge_json(
-            CREDENTIALS['username'], CREDENTIALS["answer"], login_response_json['authToken'], login_response_json['challengeData']),
+            credentials.username, credentials.answer, login_response_json['authToken'], login_response_json['challengeData']),
     )
 
     if two_factor_response.status_code != httpx.codes.OK:
@@ -207,7 +215,7 @@ async def sign_in(client, headers, cookies) -> bool:
     return True
 
 
-async def get_profile_text(client, headers, cookies) -> Optional[User]:
+async def get_profile_text(client, headers, cookies, credentials: UserCredentials) -> Optional[User]:
     response = await client.get(url=PROFILE_URL, headers=headers, follow_redirects=True)
 
     if response.status_code != httpx.codes.OK:
@@ -224,35 +232,50 @@ async def get_profile_text(client, headers, cookies) -> Optional[User]:
             "Could not fetch user profile details", response))
         return None
 
-    return User(username=CREDENTIALS['username'], profile_response_json=json.loads(response.text))
+    return User(username=credentials.username, profile_response_json=json.loads(response.text))
 
 
-def write_profile_to_database(user: User):
-    """_summary_
+async def crawl_user_data(client: httpx.AsyncClient, credentials: UserCredentials) -> Optional[User]:
+    logger.info(f"Crawling data for {credentials.username}")
+    headers, cookies = await get_headers_and_cookies(client)
+    is_signed_in = await sign_in(client, headers, cookies, credentials)
+    if not is_signed_in:
+        logger.error(
+            f"Crawling of {credentials.username} failed due to sign in error")
+        return None
 
-    Args:
-        user_profile (str): _description_
-    """
-    database.create_table()
-    database.insert_user(user)
+    user = await get_profile_text(client, headers, cookies, credentials)
+    if user is None:
+        logger.error(
+            f"Crawling of {credentials.username} failed due to user profile load error")
+        return None
+
+    return user
 
 
-async def main():
-    async with create_client(LOCAL_SSL_FILE_PATH) as client:
-        headers, cookies = await get_headers_and_cookies(client)
-        if await sign_in(client, headers, cookies):
-            user = await get_profile_text(client, headers, cookies)
+async def crawl_users(certificate_path, credentials: List[UserCredentials]):
+    users = []
+    async with create_client(certificate_path) as client:
+        tasks = []
+        for c in credentials:
+            tasks.append(crawl_user_data(client=client, credentials=c))
+
+        for user in await asyncio.gather(*tasks):
             if user is not None:
-                write_profile_to_database(user)
-        else:
-            raise Exception('User profile cannot be created.')
+                users.append(user)
+    return users
+
+
+def crawl_and_save_users(certificate_path, credentials: List[UserCredentials]):
+    database.create_table()
+    users = asyncio.run(crawl_users(certificate_path=certificate_path,
+                                    credentials=credentials))
+    database.insert_users(users)
 
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format='%(asctime)s:%(levelname)s:%(name)s:%(message)s'
-    )
-    logger = logging.getLogger("task_logger")
-
-    asyncio.run(main())
+    certificate_path = "/etc/ssl/cert.pem"
+    credentials = [UserCredentials(
+        username="fatmakahvecim@gmail.com", password="argyleSifresi1.", answer="pufi")]
+    crawl_and_save_users(certificate_path=certificate_path,
+                         credentials=credentials)

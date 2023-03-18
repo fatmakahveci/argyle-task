@@ -4,6 +4,7 @@ import logging
 import sqlite3
 import os
 import user
+from typing import List
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/'
 
@@ -57,12 +58,14 @@ def get_all():
     return users
 
 
-def insert_user(user: user.User):
+def insert_users(users: List[user.User]):
     conn = sqlite3.connect(DATABASE_FILE)
+    sql_params = [(user.username, user.id, user.creation_date,
+                   user.updated_on, user.to_json()) for user in users]
     cur = conn.cursor()  # calls execute() to perform SQL commands
-    cur.execute("INSERT INTO User(username, userId, profile_creation_time, profile_update_time, profile) VALUES (?, ?, ?, ?, ?)",
-                (user.username, user.id, user.creation_date, user.updated_on, user.to_json()))
-    logger.info(f"{user.username} is added to the database.")
+    cur.executemany("INSERT INTO User(username, userId, profile_creation_time, profile_update_time, profile) VALUES (?, ?, ?, ?, ?)",
+                    sql_params)
+    logger.info(f"{len(users)} are added to the database.")
     conn.commit()  # saves the changes
     conn.close()
 
