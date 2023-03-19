@@ -73,13 +73,30 @@ async def test_cloudflare_headers_and_cookies_set_when_failed_request_retried(re
         assert CLOUDFLARE_COOKIE_NAME in cookies
         assert cookies[CLOUDFLARE_COOKIE_NAME] == cf_cookie_val
 
-##
-# Test sign_in
-# successful sign in with 2 factor
+@respx.mock
+async def test_sign_in_with_two_factor_auth_success(respx_mock):
+    """successful sign-in with two-factor auth
 
-# Test sign_in
-# - successful sign in without 2 factor
+    Args:
+        respx_mock (_type_): _description_
+    """
+    pass
 
-# Test sign_in
-# - failed sign in with non-200 error
-##
+@respx.mock
+async def test_sign_in_one_step_without_two_factor_auth_success(respx_mock):
+    """successful sign-in without 2 factor
+    
+    Args:
+        respx_mock (_type_): _description_
+    """
+
+    pass
+
+@respx.mock
+async def test_sign_in_with_non_200_error_fail(respx_mock):
+    """failed sign-in with non-200 error
+    
+    Args:
+        respx_mock (_type_): _description_
+    """
+    pass
