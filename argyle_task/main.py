@@ -43,7 +43,7 @@ class UserCredentials:
         self.answer = answer
 
 
-async def get_cloudflare_headers_and_cookies(client: httpx.AsyncClient, retryCount: int) -> List[Dict, Dict]:
+async def get_cloudflare_headers_and_cookies(client: httpx.AsyncClient, retryCount: int) -> List[Dict]:
     """This takes headers and cookies for the login attempt.
 
     Args:
@@ -54,7 +54,7 @@ async def get_cloudflare_headers_and_cookies(client: httpx.AsyncClient, retryCou
         retryCount (int): _description_
 
     Returns:
-        List[Dict, Dict]: [headers, cookies]
+        List[Dict]: [headers, cookies]
     """
     headers = COMMON_HEADERS | {}
     cookies = {}
@@ -106,7 +106,7 @@ def create_client(certificate_path: str) -> httpx.AsyncClient:
     return httpx.AsyncClient(verify=context)
 
 
-async def get_headers_and_cookies(client: httpx.AsyncClient) -> List[Dict, Dict]:
+async def get_headers_and_cookies(client: httpx.AsyncClient) -> List[Dict]:
     """It takes the headers and cookies, and returns them.
 
     Args:
@@ -116,7 +116,7 @@ async def get_headers_and_cookies(client: httpx.AsyncClient) -> List[Dict, Dict]
             every single request.
 
     Returns:
-        List[Dict, Dict]: [headers, cookies]
+        List[Dict]: [headers, cookies]
     """
     cf_headers, cf_cookies = await get_cloudflare_headers_and_cookies(client, retryCount=CLOUDFLARE_RETRY_COUNT)
 
