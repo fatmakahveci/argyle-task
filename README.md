@@ -212,3 +212,16 @@ poetry run pytest
     "metadata": {}
 }
 ```
+
+---
+
+## Warning in testing
+
+- There is a warning related to the `tornado` version. It is non-critical so it can be ignored. Disabling warnings usually is not recommended, but `poetry run pytest --disable-warnings` helps not to show warnings.
+
+---
+
+## Improvements
+
+- Docker
+- Credentials database
