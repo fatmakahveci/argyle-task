@@ -23,7 +23,7 @@ PROFILE_URL = BASE_URL+"/freelancers/"
 
 
 CLOUDFLARE_RETRY_COUNT = 10
-CLOUDFLARE_COOKIE_NAMES = ['__cf_bm']
+CLOUDFLARE_COOKIE_NAME = '__cf_bm'
 COMMON_HEADERS = {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/110.0',
     'content-type': 'application/json',
@@ -65,7 +65,7 @@ async def get_cloudflare_headers_and_cookies(client: httpx.AsyncClient, retryCou
             for cookie in response.headers['set-cookie'].split(';'):
                 cookieTokens = cookie.strip(' ').split("=", 1)
                 if len(cookieTokens) == 2:
-                    if cookieTokens[0] in CLOUDFLARE_COOKIE_NAMES:
+                    if cookieTokens[0] == CLOUDFLARE_COOKIE_NAME:
                         cookies[cookieTokens[0]] = cookieTokens[1]
                 else:
                     logger.error(
