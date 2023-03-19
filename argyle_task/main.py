@@ -44,14 +44,17 @@ class UserCredentials:
 
 
 async def get_cloudflare_headers_and_cookies(client: httpx.AsyncClient, retryCount: int) -> List[Dict, Dict]:
-    """_summary_
+    """This takes headers and cookies for the login attempt.
 
     Args:
-        client (httpx.AsyncClient): _description_
+        client (httpx.AsyncClient): A Client instance uses HTTP connection pooling.
+            This means that when you make several requests to the same host, the Client
+            will reuse the underlying TCP connection, instead of recreating one for
+            every single request.
         retryCount (int): _description_
 
     Returns:
-        List[Dict, Dict]: _description_
+        List[Dict, Dict]: [headers, cookies]
     """
     headers = COMMON_HEADERS | {}
     cookies = {}
@@ -86,13 +89,16 @@ async def get_cloudflare_headers_and_cookies(client: httpx.AsyncClient, retryCou
 
 
 def create_client(certificate_path: str) -> httpx.AsyncClient:
-    """_summary_
+    """This creates a client instance.
 
     Args:
-        certificate_path (str): _description_
+        certificate_path (str): SSL certificate path for authentication
 
     Returns:
-        httpx.AsyncClient: _description_
+        client (httpx.AsyncClient): A Client instance uses HTTP connection pooling.
+            This means that when you make several requests to the same host, the Client
+            will reuse the underlying TCP connection, instead of recreating one for
+            every single request.
     """
     context = ssl.create_default_context(
     )  # https://www.python-httpx.org/advanced/#ssl-certificates
@@ -101,13 +107,16 @@ def create_client(certificate_path: str) -> httpx.AsyncClient:
 
 
 async def get_headers_and_cookies(client: httpx.AsyncClient) -> List[Dict, Dict]:
-    """_summary_
+    """It takes the headers and cookies, and returns them.
 
     Args:
-        client (httpx.AsyncClient): _description_
+        client (httpx.AsyncClient): A Client instance uses HTTP connection pooling.
+            This means that when you make several requests to the same host, the Client
+            will reuse the underlying TCP connection, instead of recreating one for
+            every single request.
 
     Returns:
-        List[Dict, Dict]: _description_
+        List[Dict, Dict]: [headers, cookies]
     """
     cf_headers, cf_cookies = await get_cloudflare_headers_and_cookies(client, retryCount=CLOUDFLARE_RETRY_COUNT)
 
@@ -139,14 +148,15 @@ async def get_headers_and_cookies(client: httpx.AsyncClient) -> List[Dict, Dict]
 
 
 def create_login_json(username: str, password: str) -> Dict[str, str]:
-    """_summary_
+    """This creates json-formatted login information for passing
+    the first step of login attempt.
 
     Args:
-        username (str): _description_
-        password (str): _description_
+        username (str): username
+        password (str): password
 
     Returns:
-        Dict[str, str]: _description_
+        Dict[str, str]: Login information for the first step of login attempt
     """
     return {
         "login": {
@@ -158,16 +168,16 @@ def create_login_json(username: str, password: str) -> Dict[str, str]:
 
 
 def create_challenge_json(username: str, answer: str, authToken: str, challengeData: str) -> Dict[str, str]:
-    """_summary_
+    """This creates json-formatted login information for passing two factor auth.
 
     Args:
-        username (str): _description_
-        answer (str): _description_
-        authToken (str): _description_
-        challengeData (str): _description_
+        username (str): username
+        answer (str): two-factor authentication's answer 
+        authToken (str): token data
+        challengeData (str): required for two factor auth
 
     Returns:
-        Dict[str, str]: _description_
+        Dict[str, str]: Login information for two-factor auth
     """
     return {
         'login': {
@@ -184,7 +194,7 @@ def create_challenge_json(username: str, answer: str, authToken: str, challengeD
 
 
 def response_error_str(message: str, response: Dict) -> str:
-    """
+    """This returns error message.
     """
     return f"""
             {message}.
@@ -195,16 +205,20 @@ def response_error_str(message: str, response: Dict) -> str:
 
 
 async def sign_in(client: httpx.AsyncClient, headers: Dict, cookies: Dict, credentials: UserCredentials) -> bool:
-    """_summary_
+    """This returns True, if the user can login with given credentials.
+    Otherwise, this returns False.
 
     Args:
-        client (httpx.AsyncClient): _description_
-        headers (Dict): _description_
-        cookies (Dict): _description_
-        credentials (UserCredentials): _description_
+        client (httpx.AsyncClient): A Client instance uses HTTP connection pooling.
+            This means that when you make several requests to the same host, the Client
+            will reuse the underlying TCP connection, instead of recreating one for
+            every single request.
+        headers (Dict): Header dictionary for the page
+        cookies (Dict): Cookie dictionary for the page
+        credentials (UserCredentials): User credentials
 
     Returns:
-        bool: _description_
+        bool: login attempt is successful or not.
     """
     login_response = await client.post(
         url=LOGIN_URL,
@@ -251,16 +265,19 @@ async def sign_in(client: httpx.AsyncClient, headers: Dict, cookies: Dict, crede
 
 
 async def get_profile_text(client: httpx.AsyncClient, headers: Dict, cookies: Dict, credentials: UserCredentials) -> Optional[User]:
-    """_summary_
+    """This collects the user url and user profile data.
 
     Args:
-        client (httpx.AsyncClient): _description_
-        headers (Dict): _description_
-        cookies (Dict): _description_
-        credentials (UserCredentials): _description_
+        client (httpx.AsyncClient): A Client instance uses HTTP connection pooling.
+            This means that when you make several requests to the same host, the Client
+            will reuse the underlying TCP connection, instead of recreating one for
+            every single request.
+        headers (Dict): Header dictionary for the page
+        cookies (Dict): Cookie dictionary for the page
+        credentials (UserCredentials): User credentials
 
     Returns:
-        Optional[User]: _description_
+        Optional[User]: User profile information
     """
     response = await client.get(url=PROFILE_URL, headers=headers, follow_redirects=True)
 
@@ -282,14 +299,18 @@ async def get_profile_text(client: httpx.AsyncClient, headers: Dict, cookies: Di
 
 
 async def crawl_user_data(client: httpx.AsyncClient, credentials: UserCredentials) -> Optional[User]:
-    """_summary_
+    """This takes headers and cookies information via another function and sign-in to the system.
+    Then, this collects the user data via another function.
 
     Args:
-        client (httpx.AsyncClient): _description_
-        credentials (UserCredentials): _description_
+        client (httpx.AsyncClient): A Client instance uses HTTP connection pooling.
+            This means that when you make several requests to the same host, the Client
+            will reuse the underlying TCP connection, instead of recreating one for
+            every single request.
+        credentials (UserCredentials): User credentials
 
     Returns:
-        Optional[User]: _description_
+        Optional[User]: User profile information
     """
     logger.info(f"Crawling data for {credentials.username}")
     headers, cookies = await get_headers_and_cookies(client)
@@ -309,14 +330,14 @@ async def crawl_user_data(client: httpx.AsyncClient, credentials: UserCredential
 
 
 async def crawl_users(certificate_path: str, credentials: List[UserCredentials]) -> List[User]:
-    """_summary_
+    """This creates a client and crawls the data for each user.
 
     Args:
-        certificate_path (str): _description_
-        credentials (List[UserCredentials]): _description_
+        certificate_path (str): SSL certificate path for authentication
+        credentials (List[UserCredentials]): Credential list of users
 
     Returns:
-        List[User]: _description_
+        List[User]: Users' profile information
     """
     users = []
     async with create_client(certificate_path) as client:
@@ -331,11 +352,11 @@ async def crawl_users(certificate_path: str, credentials: List[UserCredentials])
 
 
 def crawl_and_save_users(certificate_path: str, credentials: List[UserCredentials]) -> None:
-    """_summary_
+    """This creates database, crawls, and saves users data to the database.
 
     Args:
-        certificate_path (str): _description_
-        credentials (List[UserCredentials]): _description_
+        certificate_path (str): SSL certificate path for authentication
+        credentials (List[UserCredentials]): Credential list of users
     """
     database.create_table()
     users = asyncio.run(crawl_users(certificate_path=certificate_path,

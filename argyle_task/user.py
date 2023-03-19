@@ -1,3 +1,4 @@
+
 from datetime import datetime
 import json
 
@@ -59,9 +60,9 @@ class User:
             profile_response_json['person']['updatedOn'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
 
     def to_json(self) -> str:
-        """_summary_
+        """This converts user information.
 
         Returns:
-            str: _description_
+            str: user information
         """
         return json.dumps(self.__dict__, cls=DatetimeEncoder)

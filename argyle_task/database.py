@@ -1,3 +1,4 @@
+
 from datetime import datetime
 import json
 import logging
@@ -26,7 +27,7 @@ class DatetimeEncoder(json.JSONEncoder):
 
 
 def create_table() -> None:
-    """_summary_
+    """This creates a table for the user data, if not exists.
     """
     conn = sqlite3.connect(DATABASE_FILE)
     cur = conn.cursor()  # calls execute() to perform SQL commands
@@ -47,7 +48,7 @@ def create_table() -> None:
 
 
 def get_all() -> List[user.User]:
-    """_summary_
+    """This returns all the users in the database.
 
     Returns:
         List[user.User]: _description_
@@ -66,10 +67,10 @@ def get_all() -> List[user.User]:
 
 
 def insert_users(users: List[user.User]) -> None:
-    """_summary_
+    """This inserts given users as user list.
 
     Args:
-        users (List[user.User]): _description_
+        users (List[user.User]): Users' profile information
     """
     conn = sqlite3.connect(DATABASE_FILE)
     sql_params = [(user.username, user.id, user.creation_date,
@@ -83,10 +84,10 @@ def insert_users(users: List[user.User]) -> None:
 
 
 def delete_user(username: str) -> None:
-    """_summary_
+    """This deletes the specified user's information from the database.
 
     Args:
-        username (str): _description_
+        username (str): uniq username is taken for deletion
     """
     conn = sqlite3.connect(DATABASE_FILE)
     cur = conn.cursor()  # calls execute() to perform SQL commands
