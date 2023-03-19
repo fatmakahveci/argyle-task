@@ -1,7 +1,7 @@
 
 import httpx
 import respx
-from main import LOGIN_URL, COMMON_HEADERS, CLOUDFLARE_COOKIE_NAME
+from main import LOGIN_URL, CLOUDFLARE_COOKIE_NAME
 from main import create_challenge_json, create_login_json, get_cloudflare_headers_and_cookies, sign_in, UserCredentials
 
 

@@ -32,7 +32,6 @@ def create_table() -> None:
     conn = sqlite3.connect(DATABASE_FILE)
     cur = conn.cursor()  # calls execute() to perform SQL commands
     logger.info("Connected to SQLite")
-    # TODO index on username
     cur.execute('''CREATE TABLE IF NOT EXISTS User (
                         timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         id INTEGER PRIMARY KEY AUTOINCREMENT,

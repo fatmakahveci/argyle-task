@@ -148,19 +148,15 @@ poetry run pytest
 
 ## Additional libraries
 
-### `logging`
+### logging
 
 - [logging](https://docs.python.org/3/library/logging.html?highlight=logging#module-logging) defines functions and classes which implement a flexible event logging system for applications and libraries.
 
-### `pytest-asyncio`
-
-- [pytest-asyncio](https://pypi.org/project/pytest-asyncio/)
-
-### `respx`
+### respx
 
 - [RESPX](https://github.com/lundberg/respx) is a simple, yet powerful, utility for mocking out the HTTPX, and HTTP Core, libraries.
 
-### `sqlite3`
+### sqlite3
 
 - [SQLite](https://docs.python.org/3.8/library/sqlite3.html) is a C library that provides a lightweight disk-based database that doesn't require a separate server process and allows accessing the database using a nonstandard variant of the SQL query language.
 
@@ -182,7 +178,7 @@ poetry run pytest
 
 ---
 
-## Example profile object
+## Example profile object (Argyle)
 
 ```json
 {
@@ -221,7 +217,8 @@ poetry run pytest
 
 ---
 
-## Improvements
+## Future work
 
-- Docker
+- Dockerize
 - Credentials database
+- Index on username
