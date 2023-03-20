@@ -125,13 +125,11 @@ poetry run pytest
 
 ### pydantic
 
-- [https://docs.pydantic.dev/](https://docs.pydantic.dev/)
-- It is the most widely used data validation library for Python.
+- [pydantic](https://docs.pydantic.dev/) is the most widely used data validation library for Python.
 
 ### pytest
 
-- [https://docs.pytest.org/en/7.2.x/](https://docs.pytest.org/en/7.2.x/)
-- It makes it easy to write small, readable tests, and can scale to support complex functional testing for applications and libraries.
+- [pytest](https://docs.pytest.org/en/7.2.x/) makes it easy to write small, readable tests, and can scale to support complex functional testing for applications and libraries.
 
 ### respx
 
