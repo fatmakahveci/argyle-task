@@ -224,17 +224,14 @@ poetry run pytest
 
 ---
 
-## Docker
+## Dockerize the project
 
-- `docker build . task_image`
-- `docker volume create data`
-- `docker run -it --name=task_container -v "$(pwd)"=/data task_image /bin/bash`
+- `docker build . -t task_image`
+- `docker run -it --name=task_container -v $(pwd)/data:/data task_image poetry run pytest`
 
 ---
 
 ## Future work
 
-- Dockerize
-- pydantic
-- Credentials database
+- Project is ready to run for multiple users concurrently. It may take the credentials from a credentials database.
 - Index on username

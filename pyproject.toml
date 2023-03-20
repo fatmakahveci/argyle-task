@@ -20,6 +20,7 @@ anyio = "^3.6.2"
 pytest-tornasync = "^0.6.0.post2"
 pytest-mock = "^3.10.0"
 mypy = "^1.1.1"
+respx = "^0.20.1"
 
 
 [tool.poetry.group.dev.dependencies]
