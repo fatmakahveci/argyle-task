@@ -1,11 +1,12 @@
 
 import asyncio
+import database
 import httpx
 import json
 import logging
 import ssl
 import time
-import database
+from pydantic import BaseModel
 from typing import Any, Dict, Optional, List
 from user import User
 
@@ -36,11 +37,10 @@ COMMON_HEADERS = {
 }
 
 
-class UserCredentials:
-    def __init__(self, username, password, answer):
-        self.username = username
-        self.password = password
-        self.answer = answer
+class UserCredentials(BaseModel):
+    username: str
+    password: str
+    answer: str
 
 
 async def get_cloudflare_headers_and_cookies(client: httpx.AsyncClient, retryCount: int) -> List[Dict]:
@@ -295,7 +295,7 @@ async def get_profile_text(client: httpx.AsyncClient, headers: Dict, cookies: Di
             "Could not fetch user profile details", response))
         return None
 
-    return User(username=credentials.username, profile_response_json=json.loads(response.text))
+    return User(username=credentials.username, profile_response_json=json.loads(response.text), user_id=user_id)
 
 
 async def crawl_user_data(client: httpx.AsyncClient, credentials: UserCredentials) -> Optional[User]:

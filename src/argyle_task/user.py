@@ -1,63 +1,63 @@
 
 from datetime import datetime
-import json
+from pydantic import BaseModel
+from typing import Any, Dict, List, Optional
+from json import dumps, JSONEncoder
+from dataclasses import dataclass
 
 
-class DatetimeEncoder(json.JSONEncoder):
-    def default(self, obj):
-        try:
-            return super().default(obj)
-        except TypeError:
-            return str(obj)
-
-
+@dataclass
 class User:
-    def __init__(self, username, profile_response_json):
-        # profile.identity
-        self.username = username  # (unique) email or username
+    username: str
+    profile_response_json: Dict[Any, Any]
+    user_id: str
+    name: Optional[str]
+    title: Optional[str]
+    description: Optional[str]
+    country: Optional[str]
+    city: Optional[str]
+    time_zone: Optional[str]
+    skills: Optional[List[str]]
+    hourly_rate: Optional[str]
+    languages: Optional[List[str]]
+    certificates: Optional[List[str]]
+    employment_history: Optional[List[str]]
+    education: Optional[List[str]]
+    job_categories: Optional[List[str]]
+    creation_date: Optional[datetime]
+    updated_on: Optional[datetime]
 
-        profile = profile_response_json['profile']
-        self.id = profile['identity']['uid']
-        self.name = profile['profile']['name']
-        self.title = profile['profile']['title']
-        self.description = profile['profile']['description']
-        self.country = profile['profile']['location']['country']
-        self.city = profile['profile']['location']['city']
-        self.time_zone = profile['profile']['location']['countryTimezone'].split(' ')[
+    def __init__(self, username, profile_response_json, user_id):
+        self.username = username
+        self.profile_response_json = profile_response_json
+        self.user_id = user_id
+        self._load_from_json()
+
+    def _load_from_json(self):
+        name = self.profile_response_json['profile']['profile']['name']
+        title = self.profile_response_json['profile']['profile']['title']
+        description = self.profile_response_json['profile']['profile']['description']
+        country = self.profile_response_json['profile']['profile']['location']['country']
+        city = self.profile_response_json['profile']['profile']['location']['city']
+        time_zone = self.profile_response_json['profile']['profile']['location']['countryTimezone'].split(' ')[
             0]
-        # profile.skills
-        self.skills = []
-        for s in profile_response_json['profile']['profile']['skills']:
-            self.skills.append(s['name'])
-        # profile.stats
-        self.hourly_rate = str(profile['stats']['hourlyRate']['amount']) + \
-            profile['stats']['hourlyRate']['currencyCode']
-        # profile.languages
-        self.languages = []
-        for l in profile['languages']:
-            self.languages.append(l['language']['name'])
-        # profile.certificates
-        self.certificates = []
-        for c in profile['certificates']:
-            self.certificates.append(c['certificate']['name'])
-        # profile.employmentHistory
-        self.employment_history = []
-        for eh in profile['employmentHistory']:
-            job_title = f"{eh['jobTitle']} at {eh['companyName']}, {eh['city']}, {eh['country']}, s:{eh['startDate']}, e:{eh['endDate']}"
-            self.employment_history.append(job_title)
-        # profile.education
-        self.education = []
-        for e in profile['education']:
-            education = f"{e['degree']} at {e['areaOfStudy']} Department in {e['institutionName']} s:{e['dateStarted']}, e:{e['dateStarted']}"
-            self.education.append(education)
-        # profile.jobCategoriesV2
-        self.job_categories = []
-        for jc in profile['jobCategoriesV2']:
-            self.job_categories.append(jc['groupName'])
-        self.creation_date = datetime.strptime(
-            profile_response_json['person']['creationDate'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
-        self.updated_on = datetime.strptime(
-            profile_response_json['person']['updatedOn'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
+        skills = [s['name']
+                  for s in self.profile_response_json['profile']['profile']['skills']]
+        hourly_rate = str(self.profile_response_json['profile']['stats']['hourlyRate']['amount']) + \
+            self.profile_response_json['profile']['stats']['hourlyRate']['currencyCode']
+        languages = [l['language']['name']
+                     for l in self.profile_response_json['profile']['languages']]
+        certificates = [c['certificate']['name']
+                        for c in self.profile_response_json['profile']['certificates']]
+        employment_history = [
+            f"{eh['jobTitle']} at {eh['companyName']}, {eh['city']}, {eh['country']}, s:{eh['startDate']}, e:{eh['endDate']}" for eh in self.profile_response_json['profile']['employmentHistory']]
+        education = [f"{e['degree']} at {e['areaOfStudy']} Department in {e['institutionName']} s:{e['dateStarted']}, e:{e['dateStarted']}" for e in self.profile_response_json['profile']['education']]
+        job_categories = [jc['groupName']
+                          for jc in self.profile_response_json['profile']['jobCategoriesV2']]
+        creation_date = datetime.strptime(
+            self.profile_response_json['person']['creationDate'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
+        updated_on = datetime.strptime(
+            self.profile_response_json['person']['updatedOn'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
 
     def to_json(self) -> str:
         """This converts user information to json.
@@ -65,4 +65,12 @@ class User:
         Returns:
             str: user information represented as json
         """
-        return json.dumps(self.__dict__, cls=DatetimeEncoder)
+        return dumps(self.__dict__, cls=DatetimeEncoder)
+
+
+class DatetimeEncoder(JSONEncoder):
+    def default(self, obj):
+        try:
+            return super().default(obj)
+        except TypeError:
+            return str(obj)

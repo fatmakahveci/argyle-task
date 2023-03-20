@@ -36,9 +36,7 @@ def create_table() -> None:
                         timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         username varchar(255) NOT NULL,
-                        userId varchar(255) NOT NULL,
-                        profile_creation_time INT,
-                        profile_update_time INT,
+                        user_id varchar(255) NOT NULL,
                         profile TEXT
                         );
                  ''')
@@ -72,11 +70,11 @@ def insert_users(users: List[user.User]) -> None:
         users (List[user.User]): Users' profile information
     """
     conn = sqlite3.connect(DATABASE_FILE)
-    sql_params = [(user.username, user.id, user.creation_date,
-                   user.updated_on, user.to_json()) for user in users]
+    sql_params = [(user.username, user.user_id, user.to_json())
+                  for user in users]
     cur = conn.cursor()  # calls execute() to perform SQL commands
-    cur.executemany("INSERT INTO User(username, userId, profile_creation_time, profile_update_time, profile) VALUES (?, ?, ?, ?, ?)",
-                    sql_params)
+    cur.executemany(
+        "INSERT INTO User(username, user_id, profile) VALUES (?, ?, ?)", sql_params)
     logger.info(f"{len(users)} are added to the database.")
     conn.commit()  # saves the changes
     conn.close()
