@@ -58,6 +58,7 @@
 
 - [https://mypy.readthedocs.io/en/stable/](https://mypy.readthedocs.io/en/stable/)
 - It is a static type checker for Python. Type checkers help ensure that you’re using variables and functions in your code correctly.
+- Run: `poetry run mypy <file_name>.py`
 
 ---
 
@@ -148,6 +149,10 @@ poetry run pytest
 
 ## Additional libraries
 
+### json
+
+- [json](https://docs.python.org/3/library/json.html) is a lightweight data interchange format inspired by JavaScript object literal syntax.
+
 ### logging
 
 - [logging](https://docs.python.org/3/library/logging.html?highlight=logging#module-logging) defines functions and classes which implement a flexible event logging system for applications and libraries.
@@ -211,14 +216,17 @@ poetry run pytest
 
 ---
 
-## Warning in testing
+## TL;DR
 
-- There is a warning related to the `tornado` version. It is non-critical so it can be ignored. Disabling warnings usually is not recommended, but `poetry run pytest --disable-warnings` helps not to show warnings.
+- **Warning in testing:** There is a warning related to the `tornado` version. It is non-critical so it can be ignored. Disabling warnings usually is not recommended, but `poetry run pytest --disable-warnings` helps not to show warnings.
+- **`test_env.py`** is created to import files.
+- Crawled data are kept in a sqlite3 database.
 
 ---
 
 ## Future work
 
 - Dockerize
+- pydantic
 - Credentials database
 - Index on username

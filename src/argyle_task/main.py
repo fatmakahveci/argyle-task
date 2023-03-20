@@ -6,7 +6,7 @@ import logging
 import ssl
 import time
 import database
-from typing import Dict, Optional, List
+from typing import Any, Dict, Optional, List
 from user import User
 
 
@@ -57,7 +57,7 @@ async def get_cloudflare_headers_and_cookies(client: httpx.AsyncClient, retryCou
         List[Dict]: [headers, cookies]
     """
     headers = COMMON_HEADERS | {}
-    cookies = {}
+    cookies: Dict[Any, Any] = {}
 
     for _ in range(retryCount):
         response = await client.get(headers=headers, cookies=cookies, url=LOGIN_URL)
@@ -147,7 +147,7 @@ async def get_headers_and_cookies(client: httpx.AsyncClient) -> List[Dict]:
     return [headers, cookies]
 
 
-def create_login_json(username: str, password: str) -> Dict[str, str]:
+def create_login_json(username: str, password: str) -> Dict[str, Dict]:
     """This creates json-formatted login information for passing
     the first step of login attempt.
 
@@ -167,7 +167,7 @@ def create_login_json(username: str, password: str) -> Dict[str, str]:
     }
 
 
-def create_challenge_json(username: str, answer: str, authToken: str, challengeData: str) -> Dict[str, str]:
+def create_challenge_json(username: str, answer: str, authToken: str, challengeData: str) -> Dict[str, Dict]:
     """This creates json-formatted login information for passing two factor auth.
 
     Args:
@@ -193,7 +193,7 @@ def create_challenge_json(username: str, answer: str, authToken: str, challengeD
     }
 
 
-def response_error_str(message: str, response: Dict) -> str:
+def response_error_str(message: str, response: httpx.Response) -> str:
     """This returns error message.
     """
     return f"""
