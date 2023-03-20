@@ -79,7 +79,7 @@ async def test_sign_in_with_two_factor_auth_success(respx_mock):
     Args:
         respx_mock (_type_): _description_
     """
-    credentials = UserCredentials("u1", "p1", "s1")
+    credentials = UserCredentials(username="u1", password="p1", answer="s1")
     expected_login_json = create_login_json(
         credentials.username, credentials.password)
     auth_token_val = "a1"
@@ -115,7 +115,7 @@ async def test_sign_in_one_step_without_two_factor_auth_success(respx_mock):
     Args:
         respx_mock (_type_): _description_
     """
-    credentials = UserCredentials("u1", "p1", "s1")
+    credentials = UserCredentials(username="u1", password="p1", answer="s1")
     expected_login_json = create_login_json(
         credentials.username, credentials.password)
     auth_token_val = "a1"
@@ -144,7 +144,7 @@ async def test_sign_in_with_non_200_error_fail(respx_mock):
     Args:
         respx_mock (_type_): _description_
     """
-    credentials = UserCredentials("u1", "p1", "s1")
+    credentials = UserCredentials(username="u1", password="p1", answer="s1")
     expected_login_json = create_login_json(
         credentials.username, credentials.password)
     auth_token_val = "a1"

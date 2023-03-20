@@ -6,7 +6,7 @@ import json
 import logging
 import ssl
 import time
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from typing import Any, Dict, Optional, List
 from user import User
 
@@ -42,6 +42,20 @@ class UserCredentials(BaseModel):
     password: str
     answer: str
 
+    class Config:
+        validate_assignment = True
+
+    @validator('username')
+    def set_username(cls, username):
+        return username
+    
+    @validator('password')
+    def set_password(cls, password):
+        return password
+
+    @validator('answer')
+    def set_answer(cls, answer):
+        return answer
 
 async def get_cloudflare_headers_and_cookies(client: httpx.AsyncClient, retryCount: int) -> List[Dict]:
     """This takes headers and cookies for the login attempt.
@@ -329,12 +343,12 @@ async def crawl_user_data(client: httpx.AsyncClient, credentials: UserCredential
     return user
 
 
-async def crawl_users(certificate_path: str, credentials: List[UserCredentials]) -> List[User]:
+async def crawl_users(certificate_path: str, credentials: UserCredentials) -> List[User]:
     """This creates a client and crawls the data for each user.
 
     Args:
         certificate_path (str): SSL certificate path for authentication
-        credentials (List[UserCredentials]): Credential list of users
+        credentials (UserCredentials): Credentials of user
 
     Returns:
         List[User]: Users' profile information
@@ -351,12 +365,12 @@ async def crawl_users(certificate_path: str, credentials: List[UserCredentials])
     return users
 
 
-def crawl_and_save_users(certificate_path: str, credentials: List[UserCredentials]) -> None:
+def crawl_and_save_users(certificate_path: str, credentials: UserCredentials) -> None:
     """This creates database, crawls, and saves users data to the database.
 
     Args:
         certificate_path (str): SSL certificate path for authentication
-        credentials (List[UserCredentials]): Credential list of users
+        credentials (UserCredentials): Credentials of user
     """
     database.create_table()
     users = asyncio.run(crawl_users(certificate_path=certificate_path,
