@@ -9,7 +9,7 @@ from typing import List
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/'
 
-DATABASE_FILE = ROOT_DIR+'db.sqlite'
+DATABASE_FILE = os.path.join(ROOT_DIR, 'data', 'db.sqlite')
 
 logging.basicConfig(
     level=logging.DEBUG,

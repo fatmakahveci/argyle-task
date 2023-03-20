@@ -1,0 +1,41 @@
+# Git
+**/.git
+**/.gitignore
+
+# Docker
+docker-compose.yml
+.docker
+Dockerfile
+
+# .DS_Store
+**/.DS_Store
+
+# python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+pip-log.txt
+pip-delete-this-directory.txt
+.tox
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.git
+.mypy_cache
+.pytest_cache
+.hypothesis
+
+# Virtual environment
+.env/
+.venv/
+venv/
+
+# README.md
+README.md

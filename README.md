@@ -224,6 +224,14 @@ poetry run pytest
 
 ---
 
+## Docker
+
+- `docker build . task_image`
+- `docker volume create data`
+- `docker run -it --name=task_container -v "$(pwd)"=/data task_image /bin/bash`
+
+---
+
 ## Future work
 
 - Dockerize

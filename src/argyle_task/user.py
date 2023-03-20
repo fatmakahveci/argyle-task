@@ -1,6 +1,5 @@
 
 from datetime import datetime
-from pydantic import BaseModel
 from typing import Any, Dict, List, Optional
 from json import dumps, JSONEncoder
 from dataclasses import dataclass
