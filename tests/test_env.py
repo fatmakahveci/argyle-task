@@ -1,6 +1,7 @@
 import os
 import sys
 
+# Import packages
 RUNTESTS_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.abspath(os.path.join(
     RUNTESTS_DIR, '..', 'src'))

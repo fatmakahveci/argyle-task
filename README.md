@@ -1,81 +1,10 @@
-# 🦦 Scanning Task
+# 🦦 Argyle - Scanning Task
 
-## Python Libraries
+## Quick start
 
----
+### poetry
 
-### BeautifulSoup
-
-- [https://beautiful-soup-4.readthedocs.io/en/latest/](https://beautiful-soup-4.readthedocs.io/en/latest/)
-- It is a Python library for pulling data out of `HTML` and `XML` files.
-- It works with your favourite parser to provide idiomatic ways of navigating, searching, and modifying the parse tree.
-
----
-
-### Asyncio
-
-- [https://fatmakahveci.com/python-note/concurrency/](https://fatmakahveci.com/python-note/concurrency/)
-- [https://docs.python.org/3/library/asyncio.html](https://docs.python.org/3/library/asyncio.html)
-
----
-
-### Celery
-
-- [https://docs.celeryq.dev/en/stable/getting-started/introduction.html](https://docs.celeryq.dev/en/stable/getting-started/introduction.html)
-- It is a simple, flexible, and reliable distributed system to process vast amounts of messages, while providing operations with the tools required to maintain such a system.
-
----
-
-### Pydantic
-
-- [https://docs.pydantic.dev/](https://docs.pydantic.dev/)
-- It is the most widely used data validation library for Python.
-
----
-
-### Playwright
-
-- [https://playwright.dev/python/docs/intro](https://playwright.dev/python/docs/intro)
-- It was created specifically to accommodate the needs of end-to-end testing.
-
----
-
-### Httpx
-
-- [https://www.python-httpx.org/](https://www.python-httpx.org/)
-- It is a fully featured HTTP client for Python 3, which provides sync and async APIs, and support for both HTTP/1.1 and HTTP/2.
-
----
-
-### Pydash
-
-- [https://pydash.readthedocs.io/en/latest/](https://pydash.readthedocs.io/en/latest/)
-- It is the kitchen sink of Python utility libraries for doing “stuff” in a functional way.
-
----
-
-### Mypy
-
-- [https://mypy.readthedocs.io/en/stable/](https://mypy.readthedocs.io/en/stable/)
-- It is a static type checker for Python. Type checkers help ensure that you’re using variables and functions in your code correctly.
-- Run: `poetry run mypy <file_name>.py`
-
----
-
-### Pytest
-
-- [https://docs.pytest.org/en/7.2.x/](https://docs.pytest.org/en/7.2.x/)
-- It makes it easy to write small, readable tests, and can scale to support complex functional testing for applications and libraries.
-
----
-
-### Poetry
-
-- [https://python-poetry.org/](https://python-poetry.org/)
-- Poetry is a tool for **dependency management** and **packaging** in Python.
-- It allows you to declare the libraries your project depends on and it will manage (install/update) them for you.
-- The most important file is `pyproject.toml`. It resolves the dependencies of your defined requirements, and creates the `poetry.lock` file.
-- **Installation (MacOS):**
+- Install [poetry](#place1)
 
   ```bash
   curl -sSL https://install.python-poetry.org | python3 -
@@ -86,68 +15,96 @@
   ```bash
   poetry --version # check if installed
   poetry self update # update
+
+  # configure poetry to create virtual environments inside the project\'s root directory
+  poetry config virtualenvs.in-project true
+
+  # specify the python version for the local directory using pyenv
+  pyenv local 3.10.9
+
+  # install libraries
+  poetry install
+
+  ##
+  # activate the virtual environment and run a python file
+  poetry shell 
+  python run src/argyle_task/main.py
+  ## equals to
+  # run your project without opening a shell
+  poetry run python src/argyle_task/main.py
+  ##
+
+  # run your test
+  poetry run pytest
+
+  ## deactivate the virtual environment
+  # deactivate # command for later use
   ```
 
-```bash
-# start a new python project
-poetry new argyle-task
+### Run the application with Docker
 
-# configure poetry to create virtual environments inside the project's root directory
-poetry config virtualenvs.in-project true
+- Install Docker on your local machine. You can download Docker from the official website: [Docker](https://docs.docker.com/desktop/install/mac-install/)
 
-# specify the python version for the local directory using pyenv
-pyenv local 3.10.9
+- Build your Docker image by running the following command in your Docker folder:
 
-# add libraries
-poetry add beautifulsoup4 Celery httpx
+  ```bash
+  docker build . -t <image_name>
+  ```
 
-# activate the virtual environment
-poetry shell
+- Once the Docker image is built, you can run it locally using the following command:
 
-## deactivate the virtual environment
-# deactivate # for later use
+  ```bash
+  docker run -it --name=<container_name> -v <database_local_dir_abs_path>:<database_docker_abs_path> -v /etc/ssl/cert.pem:<cert_file_docker_abs_path>:ro -v <user_credentials_local_file_abs_path>:<user_credentials_docker_file_abs_path>:ro <image_name> poetry run python src/argyle_task/main.py --db <database_docker_abs_path>/db.sqlite --cert <cert_file_docker_abs_path> --users <user_credentials_docker_file_abs_path>
+  ```
 
-# run your script
-poetry run python <python_file>.py
-
-# get the latest versions of the dependencies 
-poetry update
-
-# run your test
-poetry run pytest
-```
-
----
-
-### Pyenv
-
-- [https://github.com/pyenv/pyenv](https://github.com/pyenv/pyenv)
-- It is a python installation manager. It allows you to install and run multiple python installations, on the same machine.
+  - `-v <database_local_dir_abs_path>:<database_docker_abs_path>`
+    - Crawled user profiles are kept in a [sqlite3](#place2) database.
+  - `-v <user_credentials_local_file_abs_path>:<user_credentials_docker_file_abs_path>:ro`
+    - OpenSSL-based applications use the system trust store located in the `/etc/ssl/certs` directory. This directory contains trusted root CA certificates, which are used to verify the authenticity of SSL/TLS connections to remote servers. Providing the SSL certificate is a must. `/etc/ssl/cert.pem` is located locally. (ro := read-only)
+  - `-v <user_credentials_local_file_abs_path>:<user_credentials_docker_file_abs_path>:ro`
+    - User credentials are kept in a text file. (ro := read-only)
+  - `-d`, `--db` arg
+    - Database file path (local)
+  - `-c`, `--cert` arg
+    - SSL certificate file path (local)
+  - `-u`, `--users` arg
+    - User credentials file path (local)
 
 ---
 
-### Poppler
+## How does the application work?
 
-- [https://pypi.org/project/python-poppler/](https://pypi.org/project/python-poppler/)
-- It allows to read, render, or modify PDF documents.
-- It reads an modify document meta data.
-- It lists and reads embedded documents.
-- It lists the fonts used by the document.
-- It searches or extracts text on a given page of the document.
-- It renders a page to a raw image.
-- It gets info about transitions effects between the pages.
-- It reads the table of contents of the document.
+- It takes an input text file that contains a list of user credentials. Each line is a json string consisting of username, password, and answer(secret key for two factor-auth). These fields correspond to `https://www.upwork.com` credentials.
+- The application crawls each user's profile concurrently and saves crawled profile information to an sqlite database. For a given user, each crawl operation persists a new record.
 
 ---
 
-### PdfMiner
+## Notes
 
-- [https://pypi.org/project/pdfminer/](https://pypi.org/project/pdfminer/)
-- It is a text extraction tool for PDF documents.
+- There is a non-critical warning in testing related to the `tornado` version.
+- The project's settings are MacOS-compatible.
 
 ---
 
-## Additional libraries
+## Potential future work
+
+- We can put user credentials into a database table to fulfil the requirements of the increasing number of users.
+- We can create indices on the database table to enable fast querying of crawled profiles. For instance, we can build an index for querying latest crawled profile of a given user.
+- Tests should be extended. I implemented some of the test cases due to time limitations.
+- Based on update frequency of user profiles, the crawler can prioritize users and may skip crawling some users on each run.
+
+---
+
+## TL;DR; Library glossary
+
+### asyncio
+
+- [asyncio](https://docs.python.org/3/library/asyncio.html) is a library to write concurrent code using the async/await syntax.
+- [https://fatmakahveci.com/python-note/concurrency/](https://fatmakahveci.com/python-note/concurrency/)
+
+### httpx
+
+- [httpx](https://www.python-httpx.org/) is a fully featured HTTP client for Python 3, which provides sync and async APIs, and support for both HTTP/1.1 and HTTP/2.
 
 ### json
 
@@ -157,81 +114,31 @@ poetry run pytest
 
 - [logging](https://docs.python.org/3/library/logging.html?highlight=logging#module-logging) defines functions and classes which implement a flexible event logging system for applications and libraries.
 
+### mypy
+
+- [mypy](https://mypy.readthedocs.io/en/stable/) is a static type checker for Python. Type checkers help ensure that you’re using variables and functions in your code correctly.
+- Run: `poetry run mypy <file_name>.py`
+
+### <span id="place1">poetry</span>
+
+- [poetry](https://python-poetry.org/) is a tool for **dependency management** and **packaging** in Python.
+- It allows you to declare the libraries your project depends on and it will manage (install/update) them for you.
+- The most important file is `pyproject.toml`. It resolves the dependencies of your defined requirements, and creates the `poetry.lock` file.
+
+### pydantic
+
+- [https://docs.pydantic.dev/](https://docs.pydantic.dev/)
+- It is the most widely used data validation library for Python.
+
+### pytest
+
+- [https://docs.pytest.org/en/7.2.x/](https://docs.pytest.org/en/7.2.x/)
+- It makes it easy to write small, readable tests, and can scale to support complex functional testing for applications and libraries.
+
 ### respx
 
 - [RESPX](https://github.com/lundberg/respx) is a simple, yet powerful, utility for mocking out the HTTPX, and HTTP Core, libraries.
 
-### sqlite3
+### <span id="place2">sqlite3</span>
 
 - [SQLite](https://docs.python.org/3.8/library/sqlite3.html) is a C library that provides a lightweight disk-based database that doesn't require a separate server process and allows accessing the database using a nonstandard variant of the SQL query language.
-
----
-
-## ERROR CODES
-
-- 200 - OK Everything worked as expected.
-- 201 - Created Resource has been created.
-- 204 - No Content Operation has been accepted and no content in response has been sent.
-- 400 - Bad Request The request was unacceptable, often due to missing required parameter.
-- 401 - Unauthorized No valid API key provided.
-- 402 - Request Failed The parameters were valid but the request failed.
-- 403 - Forbidden The API key doesn't have permissions to perform the request.
-- 404 - Not Found The requested resource doesn't exist.
-- 409 - Conflict Arguments in the request are in conflict with the server state.
-- 429 - Too Many Requests Too many requests hit the API too quickly. We recommend an exponential backoff of your requests.
-- 500, 502, 503, 504 - Server Errors Something went wrong on Argyle's end. (These are rare.)
-
----
-
-## Example profile object (Argyle)
-
-```json
-{
-    "id": "47b216e2-d334-4235-bc1e-185d15ab18d0",
-    "account": "010db8b4-a724-47fc-a17e-733b656312a2",
-    "employer": "walmart",
-    "created_at": "2019-11-29T09:00:16.384575Z",
-    "updated_at": "2019-11-29T09:00:16.384624Z",
-    "first_name": "John",
-    "last_name": "Smith",
-    "full_name": "John Smith",
-    "email": "john.smith@email.com",
-    "phone_number": null,
-    "birth_date": "1990-04-28",
-    "picture_url": "https://profile.picture.com/picture.jpeg",
-    "address": {
-        "line1": null,
-        "line2": null,
-        "city": null,
-        "state": null,
-        "postal_code": null,
-        "country": null
-    },
-    "ssn": "***-**-**15",
-    "marital_status": null,
-    "gender": "male",
-    "metadata": {}
-}
-```
-
----
-
-## TL;DR
-
-- **Warning in testing:** There is a warning related to the `tornado` version. It is non-critical so it can be ignored. Disabling warnings usually is not recommended, but `poetry run pytest --disable-warnings` helps not to show warnings.
-- **`test_env.py`** is created to import files.
-- Crawled data are kept in a sqlite3 database.
-
----
-
-## Dockerize the project
-
-- `docker build . -t task_image`
-- `docker run -it --name=task_container -v $(pwd)/data:/data task_image poetry run pytest`
-
----
-
-## Future work
-
-- Project is ready to run for multiple users concurrently. It may take the credentials from a credentials database.
-- Index on username

@@ -1,4 +1,5 @@
 
+import argparse
 import asyncio
 import database
 import httpx
@@ -56,6 +57,7 @@ class UserCredentials(BaseModel):
     @validator('answer')
     def set_answer(cls, answer):
         return answer
+
 
 async def get_cloudflare_headers_and_cookies(client: httpx.AsyncClient, retryCount: int) -> List[Dict]:
     """This takes headers and cookies for the login attempt.
@@ -365,22 +367,45 @@ async def crawl_users(certificate_path: str, credentials: UserCredentials) -> Li
     return users
 
 
-def crawl_and_save_users(certificate_path: str, credentials: UserCredentials) -> None:
+def crawl_and_save_users(certificate_path: str, db_path:str, credentials: UserCredentials) -> None:
     """This creates database, crawls, and saves users data to the database.
 
     Args:
         certificate_path (str): SSL certificate path for authentication
         credentials (UserCredentials): Credentials of user
     """
-    database.create_table()
+    database.create_table(db_path=db_path)
     users = asyncio.run(crawl_users(certificate_path=certificate_path,
                                     credentials=credentials))
-    database.insert_users(users)
+    database.insert_users(db_path=db_path, users=users)
 
+
+def create_user_credentials(line:str):
+    userJson = json.loads(line)
+    return UserCredentials(username = userJson['username'], password=userJson['password'], answer=userJson['answer'])
+    
 
 if __name__ == "__main__":
-    certificate_path = "/etc/ssl/cert.pem"
-    credentials = [UserCredentials(
-        username="fatmakahvecim@gmail.com", password="argyleSifresi1.", answer="pufi")]
-    crawl_and_save_users(certificate_path=certificate_path,
+    parser = argparse.ArgumentParser(add_help = False)
+    parser.add_argument('-d', '--db',
+                        help = "Database file path",
+                        required = True)
+    parser.add_argument('-c', '--cert',
+                        help="SSL certificate file path",
+                        required=True)
+    parser.add_argument('-u', '--users',
+                        help="User credentials file path",
+                        required=True)
+    args = parser.parse_args()
+    logger.info(f"certificate path: {args.cert}, db path: {args.db} users path: {args.users}")
+
+    # certificate_path = "/etc/ssl/cert.pem"
+    # credentials = [UserCredentials(
+    #     username="fatmakahvecim@gmail.com", password="argyleSifresi1.", answer="pufi")]
+    
+    with open(file=args.users, mode='r') as users_file:
+        credentials = [create_user_credentials(line) for line in users_file.readlines()]
+
+    crawl_and_save_users(certificate_path=args.cert,
+                         db_path=args.db,
                          credentials=credentials)

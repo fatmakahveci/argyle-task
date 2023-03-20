@@ -7,10 +7,6 @@ import os
 import user
 from typing import List
 
-ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))+'/'
-
-DATABASE_FILE = os.path.join(ROOT_DIR, 'data', 'db.sqlite')
-
 logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s:%(levelname)s:%(name)s:%(message)s'
@@ -26,10 +22,10 @@ class DatetimeEncoder(json.JSONEncoder):
             return str(obj)
 
 
-def create_table() -> None:
+def create_table(db_path:str) -> None:
     """This creates a table for the user data, if not exists.
     """
-    conn = sqlite3.connect(DATABASE_FILE)
+    conn = sqlite3.connect(db_path)
     cur = conn.cursor()  # calls execute() to perform SQL commands
     logger.info("Connected to SQLite")
     cur.execute('''CREATE TABLE IF NOT EXISTS User (
@@ -44,13 +40,13 @@ def create_table() -> None:
     conn.close()
 
 
-def get_all() -> List[user.User]:
+def get_all(db_path:str) -> List[user.User]:
     """This returns all the users in the database.
 
     Returns:
         List[user.User]: _description_
     """
-    conn = sqlite3.connect(DATABASE_FILE)
+    conn = sqlite3.connect(db_path)
     cur = conn.cursor()  # calls execute() to perform SQL commands
 
     cur.execute("SELECT * FROM User")
@@ -63,13 +59,13 @@ def get_all() -> List[user.User]:
     return users
 
 
-def insert_users(users: List[user.User]) -> None:
+def insert_users(db_path:str, users: List[user.User]) -> None:
     """This inserts given users as user list.
 
     Args:
         users (List[user.User]): Users' profile information
     """
-    conn = sqlite3.connect(DATABASE_FILE)
+    conn = sqlite3.connect(db_path)
     sql_params = [(user.username, user.user_id, user.to_json())
                   for user in users]
     cur = conn.cursor()  # calls execute() to perform SQL commands
@@ -80,13 +76,13 @@ def insert_users(users: List[user.User]) -> None:
     conn.close()
 
 
-def delete_user(username: str) -> None:
+def delete_user(db_path:str,username: str) -> None:
     """This deletes the specified user's information from the database.
 
     Args:
         username (str): uniq username is taken for deletion
     """
-    conn = sqlite3.connect(DATABASE_FILE)
+    conn = sqlite3.connect(db_path)
     cur = conn.cursor()  # calls execute() to perform SQL commands
 
     cur.execute("DELETE FROM user WHERE username=(?)", username)
