@@ -399,10 +399,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
     logger.info(f"certificate path: {args.cert}, db path: {args.db} users path: {args.users}")
 
-    # certificate_path = "/etc/ssl/cert.pem"
-    # credentials = [UserCredentials(
-    #     username="fatmakahvecim@gmail.com", password="argyleSifresi1.", answer="pufi")]
-    
     with open(file=args.users, mode='r') as users_file:
         credentials = [create_user_credentials(line) for line in users_file.readlines()]
 
