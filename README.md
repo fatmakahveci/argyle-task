@@ -2,44 +2,42 @@
 
 ## Quick start
 
-### poetry
+### Run the application with [poetry](#place1)
 
-- Install [poetry](#place1)
+```bash
+curl -sSL https://install.python-poetry.org | python3 -
+```
 
-  ```bash
-  curl -sSL https://install.python-poetry.org | python3 -
-  ```
+Add `$HOME/.local/bin` to your `$PATH`.
 
-  Add `$HOME/.local/bin` to your `$PATH`.
+```bash
+poetry --version # check if installed
+poetry self update # update
 
-  ```bash
-  poetry --version # check if installed
-  poetry self update # update
+# configure poetry to create virtual environments inside the project\'s root directory
+poetry config virtualenvs.in-project true
 
-  # configure poetry to create virtual environments inside the project\'s root directory
-  poetry config virtualenvs.in-project true
+# specify the python version for the local directory using pyenv
+pyenv local 3.10.9
 
-  # specify the python version for the local directory using pyenv
-  pyenv local 3.10.9
+# install libraries
+poetry install
 
-  # install libraries
-  poetry install
+##
+# activate the virtual environment and run a python file
+poetry shell 
+python run src/argyle_task/main.py
+## equals to
+# run your project without opening a shell
+poetry run python src/argyle_task/main.py
+##
 
-  ##
-  # activate the virtual environment and run a python file
-  poetry shell 
-  python run src/argyle_task/main.py
-  ## equals to
-  # run your project without opening a shell
-  poetry run python src/argyle_task/main.py
-  ##
+# run your test
+poetry run pytest
 
-  # run your test
-  poetry run pytest
-
-  ## deactivate the virtual environment
-  # deactivate # command for later use
-  ```
+## deactivate the virtual environment
+# deactivate # command for later use
+```
 
 ### Run the application with Docker
 
