@@ -1,4 +1,3 @@
-
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 from json import dumps, JSONEncoder
@@ -44,19 +43,18 @@ class User:
                   for s in self.profile_response_json['profile']['profile']['skills']]
         hourly_rate = str(self.profile_response_json['profile']['stats']['hourlyRate']['amount']) + \
             self.profile_response_json['profile']['stats']['hourlyRate']['currencyCode']
-        languages = [l['language']['name']
-                     for l in self.profile_response_json['profile']['languages']]
-        certificates = [c['certificate']['name']
-                        for c in self.profile_response_json['profile']['certificates']]
-        employment_history = [
-            f"{eh['jobTitle']} at {eh['companyName']}, {eh['city']}, {eh['country']}, s:{eh['startDate']}, e:{eh['endDate']}" for eh in self.profile_response_json['profile']['employmentHistory']]
-        education = [f"{e['degree']} at {e['areaOfStudy']} Department in {e['institutionName']} s:{e['dateStarted']}, e:{e['dateStarted']}" for e in self.profile_response_json['profile']['education']]
-        job_categories = [jc['groupName']
-                          for jc in self.profile_response_json['profile']['jobCategoriesV2']]
-        creation_date = datetime.strptime(
-            self.profile_response_json['person']['creationDate'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
-        updated_on = datetime.strptime(
-            self.profile_response_json['person']['updatedOn'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
+        if not self.profile_response_json['profile']['languages'] is None:
+            languages = [l['language']['name'] for l in self.profile_response_json['profile']['languages']]
+        if not self.profile_response_json['profile']['certificates'] is None:
+            certificates = [c['certificate']['name'] for c in self.profile_response_json['profile']['certificates']]
+        if not self.profile_response_json['profile']['employmentHistory'] is None:
+            employment_history = [f"{eh['jobTitle']} at {eh['companyName']}, {eh['city']}, {eh['country']}, s:{eh['startDate']}, e:{eh['endDate']}" for eh in self.profile_response_json['profile']['employmentHistory']]
+        if not self.profile_response_json['profile']['education'] is None:
+           education = [f"{e['degree']} at {e['areaOfStudy']} Department in {e['institutionName']} s:{e['dateStarted']}, e:{e['dateStarted']}" for e in self.profile_response_json['profile']['education']]
+        if not self.profile_response_json['profile']['jobCategoriesV2'] is None:
+            job_categories = [jc['groupName'] for jc in self.profile_response_json['profile']['jobCategoriesV2']]
+        creation_date = datetime.strptime(self.profile_response_json['person']['creationDate'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
+        updated_on = datetime.strptime(self.profile_response_json['person']['updatedOn'].split('.')[0], "%Y-%m-%dT%H:%M:%S")
 
     def to_json(self) -> str:
         """This converts user information to json.

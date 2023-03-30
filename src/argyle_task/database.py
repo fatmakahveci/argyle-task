@@ -1,11 +1,9 @@
-
-from datetime import datetime
 import json
 import logging
 import sqlite3
-import os
 import user
 from typing import List
+
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -24,6 +22,9 @@ class DatetimeEncoder(json.JSONEncoder):
 
 def create_table(db_path:str) -> None:
     """This creates a table for the user data, if not exists.
+
+    Args:
+        db_path (str): path for the database
     """
     conn = sqlite3.connect(db_path)
     cur = conn.cursor()  # calls execute() to perform SQL commands
@@ -43,8 +44,11 @@ def create_table(db_path:str) -> None:
 def get_all(db_path:str) -> List[user.User]:
     """This returns all the users in the database.
 
+    Args:
+        db_path (str): path for the database
+
     Returns:
-        List[user.User]: _description_
+        List[user.User]: All the users' profile information
     """
     conn = sqlite3.connect(db_path)
     cur = conn.cursor()  # calls execute() to perform SQL commands
@@ -63,6 +67,7 @@ def insert_users(db_path:str, users: List[user.User]) -> None:
     """This inserts given users as user list.
 
     Args:
+        db_path (str): path for the database
         users (List[user.User]): Users' profile information
     """
     conn = sqlite3.connect(db_path)
@@ -76,10 +81,11 @@ def insert_users(db_path:str, users: List[user.User]) -> None:
     conn.close()
 
 
-def delete_user(db_path:str,username: str) -> None:
+def delete_user(db_path:str, username: str) -> None:
     """This deletes the specified user's information from the database.
 
     Args:
+        db_path (str): path for the database
         username (str): uniq username is taken for deletion
     """
     conn = sqlite3.connect(db_path)

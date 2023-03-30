@@ -100,6 +100,10 @@ poetry run pytest
 - [asyncio](https://docs.python.org/3/library/asyncio.html) is a library to write concurrent code using the async/await syntax.
 - [https://fatmakahveci.com/python-note/concurrency/](https://fatmakahveci.com/python-note/concurrency/)
 
+### celery
+
+- [celery](https://docs.celeryq.dev/en/stable/getting-started/introduction.html) is a simple, flexible, and reliable distributed system to process vast amounts of messages, while providing operations with the tools required to maintain such a system.
+
 ### httpx
 
 - [httpx](https://www.python-httpx.org/) is a fully featured HTTP client for Python 3, which provides sync and async APIs, and support for both HTTP/1.1 and HTTP/2.
@@ -117,15 +121,46 @@ poetry run pytest
 - [mypy](https://mypy.readthedocs.io/en/stable/) is a static type checker for Python. Type checkers help ensure that you’re using variables and functions in your code correctly.
 - Run: `poetry run mypy <file_name>.py`
 
+### pdfMiner
+
+- [PdfMiner](https://pypi.org/project/pdfminer/) is a text extraction tool for PDF documents.
+
+### playwright
+
+- [playwright](https://playwright.dev/python/docs/intro) was created specifically to accommodate the needs of end-to-end testing.
+
 ### <span id="place1">poetry</span>
 
 - [poetry](https://python-poetry.org/) is a tool for **dependency management** and **packaging** in Python.
 - It allows you to declare the libraries your project depends on and it will manage (install/update) them for you.
 - The most important file is `pyproject.toml`. It resolves the dependencies of your defined requirements, and creates the `poetry.lock` file.
 
+### poppler
+
+- [poppler](https://pypi.org/project/python-poppler/) allows you to read, render, or modify PDF documents.
+- It reads and modifies document metadata.
+- It lists and reads embedded documents.
+- It lists the fonts used by the document.
+- It searches or extracts text on a given page of the document.
+- It renders a page into a raw image.
+- It gets info about transition effects between the pages.
+- It reads the table of contents of the document.
+
 ### pydantic
 
 - [pydantic](https://docs.pydantic.dev/) is the most widely used data validation library for Python.
+
+### pydash
+
+- [pydash](https://pydash.readthedocs.io/en/latest/) is the kitchen sink of Python utility libraries for functionally doing "stuff".
+
+### pylint
+
+- [pylint](https://pypi.org/project/pylint/) is a static code analyser.
+  - A code linter is a software tool designed to examine your code and provide feedback on potential issues. It detects errors and offers solutions to help you ensure that your code meets standard quality guidelines. You can execute it at any time to verify code consistency.
+- `pylint` handles both the following:
+  - **Logical lint** detects errors and identifies potentially dangerous patterns.
+  - **Statistical lint** examines the formatting to find out the issues with its style and structure.
 
 ### pytest
 
