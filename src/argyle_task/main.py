@@ -105,6 +105,9 @@ async def get_cloudflare_headers_and_cookies(client: httpx.AsyncClient, retryCou
 
 def create_client(certificate_path: str) -> httpx.AsyncClient:
     """This creates a client instance.
+    When making a request over HTTPS, HTTPX needs to verify the identity
+    of the requested host. To do this, it uses a bundle of SSL certificates
+    (a.k.a. CA bundle) delivered by a trusted certificate authority (CA).
 
     Args:
         certificate_path (str): SSL certificate path for authentication
@@ -115,8 +118,7 @@ def create_client(certificate_path: str) -> httpx.AsyncClient:
             will reuse the underlying TCP connection, instead of recreating one for
             every single request.
     """
-    context = ssl.create_default_context(
-    )  # https://www.python-httpx.org/advanced/#ssl-certificates
+    context = ssl.create_default_context() # https://www.python-httpx.org/advanced/#ssl-certificates
     context.load_verify_locations(cafile=certificate_path)
     return httpx.AsyncClient(verify=context)
 
