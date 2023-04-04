@@ -8,11 +8,11 @@
 
 ### Level 2
 
-Level 1 + all the information in profile settings. Find an elegant way to handle missing fields and communicate it via response. Make data serializable to an object (example using https://pydantic-docs.helpmanual.io/)
+- Level 1 + all the information in profile settings. Find an elegant way to handle missing fields and communicate it via response. Make data serializable to an object (example using https://pydantic-docs.helpmanual.io/)
 
 ### Level 3
 
-Handle possible errors, add retry if the scanning fails.
+- Handle possible errors, add retry if the scanning fails.
 
 ## Quick start
 
