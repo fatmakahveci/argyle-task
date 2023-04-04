@@ -1,5 +1,19 @@
 # 🦦 Argyle - Scanning Task
 
+## Task solution levels
+
+### Level 1
+
+- Log into the portal, scan the main portal page and return the information which you think is valuable. Save the result to a file in a json format.
+
+### Level 2
+
+Level 1 + all the information in profile settings. Find an elegant way to handle missing fields and communicate it via response. Make data serializable to an object (example using https://pydantic-docs.helpmanual.io/)
+
+### Level 3
+
+Handle possible errors, add retry if the scanning fails.
+
 ## Quick start
 
 ### Run the application with [poetry](#place1)
