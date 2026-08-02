@@ -1,8 +1,9 @@
 import json
 import logging
 import sqlite3
-import user
 from typing import List
+
+from .user import User
 
 
 logging.basicConfig(
@@ -41,7 +42,7 @@ def create_table(db_path:str) -> None:
     conn.close()
 
 
-def get_all(db_path:str) -> List[user.User]:
+def get_all(db_path:str) -> List[User]:
     """This returns all the users in the database.
 
     Args:
@@ -63,7 +64,7 @@ def get_all(db_path:str) -> List[user.User]:
     return users
 
 
-def insert_users(db_path:str, users: List[user.User]) -> None:
+def insert_users(db_path:str, users: List[User]) -> None:
     """This inserts given users as user list.
 
     Args:

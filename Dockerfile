@@ -1,4 +1,4 @@
-FROM python:3.11.1 as python
+FROM python:3.11.13-slim AS python
 
 WORKDIR /app
 
@@ -13,7 +13,7 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_DEFAULT_TIMEOUT=100 \
     \
     # poetry
-    POETRY_VERSION=1.4.0 \
+    POETRY_VERSION=2.4.1 \
     # make poetry install to this location
     POETRY_HOME="/opt/poetry" \
     # make poetry create the virtual environment in the project's root
@@ -36,7 +36,8 @@ RUN apt-get update \
         # deps for installing poetry
         curl \
         # deps for building python deps
-        build-essential
+        build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN curl -sSL https://install.python-poetry.org | python3 -
 

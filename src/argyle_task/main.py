@@ -1,14 +1,13 @@
 import argparse
 import asyncio
-import database
 import httpx
 import json
 import logging
 import ssl
-import time
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, ConfigDict
 from typing import Any, Dict, Optional, List
-from user import User
+from . import database
+from .user import User
 
 
 logging.basicConfig(
@@ -38,24 +37,11 @@ COMMON_HEADERS = {
 
 
 class UserCredentials(BaseModel):
+    model_config = ConfigDict(validate_assignment=True)
+
     username: str
     password: str
     answer: str
-
-    class Config:
-        validate_assignment = True
-
-    @validator('username')
-    def set_username(cls, username):
-        return username
-    
-    @validator('password')
-    def set_password(cls, password):
-        return password
-
-    @validator('answer')
-    def set_answer(cls, answer):
-        return answer
 
 
 async def get_cloudflare_headers_and_cookies(client: httpx.AsyncClient, retryCount: int) -> List[Dict]:
@@ -98,7 +84,7 @@ async def get_cloudflare_headers_and_cookies(client: httpx.AsyncClient, retryCou
 
         logger.warning(
             f"Received {response.status_code} while getting cloudflare cookies")
-        time.sleep(1)
+        await asyncio.sleep(1)
 
     return [headers, cookies]
 
