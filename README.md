@@ -1,5 +1,9 @@
 # 🦦 Argyle - Scanning Task
 
+[![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Poetry](https://img.shields.io/badge/Poetry-managed-60A5FA?logo=poetry&logoColor=white)](https://python-poetry.org/)
+[![Last commit](https://img.shields.io/github/last-commit/fatmakahveci/argyle-task)](https://github.com/fatmakahveci/argyle-task/commits/main)
+
 ## Task solution levels
 
 ### Level 1
