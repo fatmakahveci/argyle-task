@@ -191,3 +191,10 @@ poetry run pytest
 ### <span id="place2">sqlite3</span>
 
 - [SQLite](https://docs.python.org/3.8/library/sqlite3.html) is a C library that provides a lightweight disk-based database that doesn't require a separate server process and allows accessing the database using a nonstandard variant of the SQL query language.
+
+## Project Resources
+
+- [Changelog](CHANGELOG.md)
+- [Contributing guide](.github/CONTRIBUTING.md)
+- [Security policy](.github/SECURITY.md)
+- [License](LICENSE.md)
