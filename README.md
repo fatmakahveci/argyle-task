@@ -36,25 +36,24 @@ poetry self update # update
 poetry config virtualenvs.in-project true
 
 # specify the python version for the local directory using pyenv
-pyenv local 3.10.9
+poetry env use python3.11
 
 # install libraries
 poetry install
 
 ##
-# activate the virtual environment and run a python file
-poetry shell 
-python run src/argyle_task/main.py
-## equals to
-# run your project without opening a shell
-poetry run python src/argyle_task/main.py
+# Run from the repository root with explicit local paths.
+# Use only accounts you own or are authorized to access.
+poetry run python -m argyle_task.main \
+  --db /absolute/path/to/profiles.sqlite \
+  --cert /absolute/path/to/ca-bundle.pem \
+  --users /absolute/path/to/credentials.jsonl
 ##
 
 # run your test
 poetry run pytest
 
-## deactivate the virtual environment
-# deactivate # command for later use
+# No shell activation is needed when using poetry run.
 ```
 
 ### Run the application with Docker
@@ -75,8 +74,10 @@ poetry run pytest
 
   - `-v <database_local_dir_abs_path>:<database_docker_abs_path>`
     - Crawled user profiles are kept in a [sqlite3](#place2) database.
-  - `-v <user_credentials_local_file_abs_path>:<user_credentials_docker_file_abs_path>:ro`
-    - OpenSSL-based applications use the system trust store located in the `/etc/ssl/certs` directory. This directory contains trusted root CA certificates, which are used to verify the authenticity of SSL/TLS connections to remote servers. Providing the SSL certificate is a must. `/etc/ssl/cert.pem` is located locally. (ro := read-only)
+  - `-v <host_ca_bundle>:<container_ca_bundle>:ro`
+    - Mount a readable PEM CA bundle and pass its container path to `--cert`.
+      Host certificate locations differ by operating system; `/etc/ssl/cert.pem`
+      is only an example. Keep TLS verification enabled. `ro` means read-only.
   - `-v <user_credentials_local_file_abs_path>:<user_credentials_docker_file_abs_path>:ro`
     - User credentials are kept in a text file. (ro := read-only)
   - `-d`, `--db` arg
@@ -97,8 +98,10 @@ poetry run pytest
 
 ## Notes
 
-- There is a non-critical warning in testing related to the `tornado` version.
-- The project's settings are MacOS-compatible.
+- Python 3.11 or newer is required by `pyproject.toml`.
+- Tests use mocked HTTP responses; they do not require real credentials.
+- Credential files and captured profiles are sensitive: keep them outside Git,
+  restrict file permissions, and do not include their contents in logs or issues.
 
 ---
 
