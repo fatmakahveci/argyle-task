@@ -119,7 +119,7 @@ poetry run pytest
 ### asyncio
 
 - [asyncio](https://docs.python.org/3/library/asyncio.html) is a library to write concurrent code using the async/await syntax.
-- [https://fatmakahveci.com/python-note/concurrency/](https://fatmakahveci.com/python-note/concurrency/)
+- [https://fatmakahveci.github.io/python-note/concurrency/](https://fatmakahveci.github.io/python-note/concurrency/)
 
 ### celery
 
